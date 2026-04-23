@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from models import db, User, PasswordResetToken
 from datetime import timedelta, datetime
 import secrets
+from utils.access_control import normalize_tier
 
 from services.email_service import send_password_reset_email, send_welcome_email
 
@@ -313,6 +314,16 @@ def admin_update_user_access(target_user_id):
             if target_user.id == admin_user.id and requested_admin is False:
                 return jsonify({"message": "You cannot remove your own admin access"}), 400
             target_user.is_admin = requested_admin
+            changed = True
+
+        if "free_plan_tier" in data:
+            requested_plan = normalize_tier(data.get("free_plan_tier"))
+            if requested_plan not in {"plan", "thrive", "together"}:
+                return jsonify({"message": "Invalid free_plan_tier. Use plan, thrive, or together"}), 400
+
+            target_user.subscription_tier = requested_plan
+            target_user.subscription_status = "active"
+            target_user.trial_ends_at = None
             changed = True
 
         if not changed:

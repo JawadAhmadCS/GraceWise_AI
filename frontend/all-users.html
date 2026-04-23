@@ -102,12 +102,13 @@
                             <th>Email</th>
                             <th>Registered Date</th>
                             <th>Status</th>
+                            <th>Subscription</th>
                             <th>Access</th>
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
                         <tr>
-                            <td colspan="5" class="text-center">Loading users...</td>
+                            <td colspan="6" class="text-center">Loading users...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -220,7 +221,7 @@
                 console.error('Error loading users:', error);
                 document.getElementById('users-table-body').innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #dc2626;">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #dc2626;">
                             Failed to load users. Please try again.
                         </td>
                     </tr>
@@ -231,11 +232,26 @@
         // Display users in table
         function displayUsers(users) {
             const tbody = document.getElementById('users-table-body');
+            const planNames = {
+                free: 'Free',
+                plan: 'Plan',
+                thrive: 'Thrive',
+                together: 'Together'
+            };
+
+            function getSubscriptionStatusLabel(rawStatus) {
+                const status = (rawStatus || 'inactive').toLowerCase();
+                if (status === 'active') return 'Active';
+                if (status === 'trialing') return 'Trialing';
+                if (status === 'past_due') return 'Past due';
+                if (status === 'canceled') return 'Canceled';
+                return 'Inactive';
+            }
             
             if (users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px;">
+                        <td colspan="6" style="text-align: center; padding: 20px;">
                             No users found.
                         </td>
                     </tr>
@@ -254,12 +270,34 @@
                         </span>
                     </td>
                     <td>
-                        <button onclick="toggleUserActive(${user.id}, ${user.is_active ? 'false' : 'true'})">
-                            ${user.is_active ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button onclick="toggleUserAdmin(${user.id}, ${user.is_admin ? 'false' : 'true'})">
-                            ${user.is_admin ? 'Remove Admin' : 'Make Admin'}
-                        </button>
+                        <div class="subscription-cell">
+                            <span class="tier-badge tier-${(user.effective_tier || 'free').toLowerCase()}">
+                                ${planNames[(user.effective_tier || 'free').toLowerCase()] || 'Free'}
+                            </span>
+                            <span class="subscription-status">
+                                ${getSubscriptionStatusLabel(user.subscription_status)}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="access-actions">
+                            <button onclick="toggleUserActive(${user.id}, ${user.is_active ? 'false' : 'true'})">
+                                ${user.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button onclick="toggleUserAdmin(${user.id}, ${user.is_admin ? 'false' : 'true'})">
+                                ${user.is_admin ? 'Remove Admin' : 'Make Admin'}
+                            </button>
+                            <div class="plan-grant-controls">
+                                <select id="plan-select-${user.id}" class="plan-select">
+                                    <option value="plan">Plan</option>
+                                    <option value="thrive">Thrive</option>
+                                    <option value="together">Together</option>
+                                </select>
+                                <button class="grant-plan-btn" onclick="grantFreePlan(${user.id})">
+                                    Grant Free Plan
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -271,6 +309,21 @@
 
         async function toggleUserAdmin(userId, isAdmin) {
             await updateUserAccess(userId, { is_admin: isAdmin });
+        }
+
+        async function grantFreePlan(userId) {
+            const planSelect = document.getElementById(`plan-select-${userId}`);
+            const selectedPlan = (planSelect?.value || '').toLowerCase();
+
+            if (!selectedPlan) {
+                alert('Please select a plan first.');
+                return;
+            }
+
+            const confirmed = window.confirm(`Activate ${selectedPlan} access for this user for free?`);
+            if (!confirmed) return;
+
+            await updateUserAccess(userId, { free_plan_tier: selectedPlan });
         }
 
         async function updateUserAccess(userId, payload) {
