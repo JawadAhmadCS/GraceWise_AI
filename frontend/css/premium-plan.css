@@ -41,6 +41,14 @@ body {
     color: var(--soft);
 }
 
+.guest-plan-hint {
+    background: #fff8ea;
+    border: 1px solid #f0d6a9;
+    border-radius: 10px;
+    padding: 10px 14px;
+    max-width: 620px;
+}
+
 .back-link {
     display: inline-block;
     margin-top: 14px;

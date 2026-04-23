@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const currentPlanText = document.getElementById('currentPlanText');
+    const currentPlanCard = document.getElementById('currentPlanCard');
     const manageBillingBtn = document.getElementById('manageBillingBtn');
     const retryPaymentBtn = document.getElementById('retryPaymentBtn');
     const cancelSubscriptionBtn = document.getElementById('cancelSubscriptionBtn');
+    const backLink = document.querySelector('.back-link');
+    const guestPlanHint = document.getElementById('guestPlanHint');
     const planButtons = Array.from(document.querySelectorAll('[data-action-plan]'));
 
     const planNames = {
@@ -41,6 +44,31 @@ document.addEventListener('DOMContentLoaded', async function () {
             } else {
                 btn.textContent = `Switch to ${planNames[planId] || planId}`;
             }
+        });
+    }
+
+    function setupGuestView() {
+        if (currentPlanCard) {
+            currentPlanCard.style.display = 'none';
+        }
+
+        if (guestPlanHint) {
+            guestPlanHint.style.display = 'block';
+        }
+
+        if (backLink) {
+            backLink.href = 'index.html';
+            backLink.textContent = 'Back to Home';
+        }
+
+        planButtons.forEach((btn) => {
+            const planId = btn.getAttribute('data-action-plan');
+            const tierLabel = planNames[planId] || 'Plan';
+            btn.disabled = false;
+            btn.textContent = `Sign In for ${tierLabel}`;
+            btn.addEventListener('click', function () {
+                window.location.href = 'sign_in.html';
+            });
         });
     }
 
@@ -94,6 +122,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    const isLoggedIn = !!(window.auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn());
+    if (!isLoggedIn) {
+        setupGuestView();
+        return;
+    }
+
+    if (backLink) {
+        backLink.href = 'dashboard.html';
+        backLink.textContent = 'Back to Dashboard';
+    }
+
     planButtons.forEach((btn) => {
         btn.addEventListener('click', async function () {
             const planId = btn.getAttribute('data-action-plan');
@@ -102,37 +141,43 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     });
 
-    manageBillingBtn.addEventListener('click', async function () {
-        try {
-            const url = await billingApi.openPortal('premium-plan.html');
-            window.location.href = url;
-        } catch (error) {
-            showError(error.message || 'Could not open billing portal.');
-        }
-    });
+    if (manageBillingBtn) {
+        manageBillingBtn.addEventListener('click', async function () {
+            try {
+                const url = await billingApi.openPortal('premium-plan.html');
+                window.location.href = url;
+            } catch (error) {
+                showError(error.message || 'Could not open billing portal.');
+            }
+        });
+    }
 
-    retryPaymentBtn.addEventListener('click', async function () {
-        try {
-            const response = await billingApi.retryPayment();
-            showSuccess(response.message || 'Payment retry triggered.');
-            await refreshState();
-        } catch (error) {
-            showError(error.message || 'Unable to retry payment.');
-        }
-    });
+    if (retryPaymentBtn) {
+        retryPaymentBtn.addEventListener('click', async function () {
+            try {
+                const response = await billingApi.retryPayment();
+                showSuccess(response.message || 'Payment retry triggered.');
+                await refreshState();
+            } catch (error) {
+                showError(error.message || 'Unable to retry payment.');
+            }
+        });
+    }
 
-    cancelSubscriptionBtn.addEventListener('click', async function () {
-        const confirmed = window.confirm('Cancel your subscription at period end?');
-        if (!confirmed) return;
+    if (cancelSubscriptionBtn) {
+        cancelSubscriptionBtn.addEventListener('click', async function () {
+            const confirmed = window.confirm('Cancel your subscription at period end?');
+            if (!confirmed) return;
 
-        try {
-            await billingApi.cancel(false);
-            showSuccess('Cancellation requested. You will keep access until period end.');
-            await refreshState();
-        } catch (error) {
-            showError(error.message || 'Could not cancel subscription.');
-        }
-    });
+            try {
+                await billingApi.cancel(false);
+                showSuccess('Cancellation requested. You will keep access until period end.');
+                await refreshState();
+            } catch (error) {
+                showError(error.message || 'Could not cancel subscription.');
+            }
+        });
+    }
 
     await refreshState();
 });

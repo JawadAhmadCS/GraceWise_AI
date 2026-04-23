@@ -216,7 +216,6 @@ class AuthSystem {
             'devotional.html',
             'progress.html',
             'settings.html',
-            'premium-plan.html',
             'onboarding.html',
             'payment-success.html'
         ];

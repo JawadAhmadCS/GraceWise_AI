@@ -361,6 +361,20 @@ body {
     letter-spacing: 0.5px;
 }
 
+.hero-cta-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.main-cta-btn.secondary {
+    background: #ffffff;
+    color: #c97e76;
+    border: 1px solid #c97e76;
+}
+
 /* Hero Right */
 .hero-right {
     position: relative;
