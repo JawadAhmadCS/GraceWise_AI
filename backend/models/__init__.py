@@ -20,5 +20,8 @@ from models.app_setting import AppSetting
 from models.onboarding_profile import OnboardingProfile
 from models.password_reset_token import PasswordResetToken
 from models.homeschool_style_submission import HomeschoolStyleSubmission
+from models.family_profile import FamilyProfile
+from models.onboarding_session import OnboardingSession
+from models.onboarding_answer import OnboardingAnswer
 
-__all__ = ['db', 'User', 'Child', 'Devotional', 'DevotionalProgress', 'Planner', 'Curriculum', 'Module', 'Lesson', 'Quiz', 'QuizResult', 'Notification', 'AiSession', 'AiChatMessage', 'AppSetting', 'OnboardingProfile', 'PasswordResetToken', 'HomeschoolStyleSubmission']
+__all__ = ['db', 'User', 'Child', 'Devotional', 'DevotionalProgress', 'Planner', 'Curriculum', 'Module', 'Lesson', 'Quiz', 'QuizResult', 'Notification', 'AiSession', 'AiChatMessage', 'AppSetting', 'OnboardingProfile', 'PasswordResetToken', 'HomeschoolStyleSubmission', 'FamilyProfile', 'OnboardingSession', 'OnboardingAnswer']

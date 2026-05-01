@@ -188,6 +188,18 @@ grace-wise/
 
 This flow stores each submission in the `homeschool_style_submission` table, updates/creates lead context, syncs payload to your Systeme webhook, and sends the result email via configured SMTP.
 
+### AI Onboarding V2 (Conversational)
+
+New API prefix: `/onboarding/v2`
+
+- `POST /onboarding/v2/session/start` starts or resumes one-question-at-a-time onboarding.
+- `POST /onboarding/v2/session/message` saves each answer (text or voice), validates, tracks progress, and returns the next question.
+- `GET /onboarding/v2/profile` returns all saved section data.
+- `PATCH /onboarding/v2/profile/section/<section_key>` lets users edit answers by profile section later.
+- Question order, field mapping, and conditional logic are configured in `backend/config/onboarding_question_bank.json`.
+
+For the exact question handoff format, see `backend/onboarding_v2_guide.md`.
+
 5. **Set up database**
    - Create a MySQL database named `gracewise`
    - Update `app.py` with your database credentials:

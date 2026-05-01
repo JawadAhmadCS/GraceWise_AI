@@ -3,36 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onboarding - GraceWise</title>
-    <link rel="stylesheet" href="css/onboarding.css">
-    <link rel="stylesheet" href="css/notifications.css">
+    <title>AI Onboarding - GraceWise</title>
+    <link rel="stylesheet" href="css/onboarding-chat.css">
     <script src="js/config.js"></script>
-    <script src="js/notifications.js" defer></script>
     <script src="js/auth.js" defer></script>
     <script src="js/onboarding.js" defer></script>
 </head>
 <body>
-    <main class="onboarding-shell">
-        <section class="onboarding-header">
-            <h1>Tell GraceWise About Your Family</h1>
-            <p>These answers personalize your dashboard tools and AI coaching.</p>
+    <main class="shell">
+        <section class="header-card">
+            <h1>AI Family Onboarding</h1>
+            <p>Answer naturally. GraceWise asks one question at a time and builds your family profile.</p>
+
+            <div class="progress-wrap">
+                <div class="progress-bar"><div id="progressFill"></div></div>
+                <p id="progressText">Progress: 0%</p>
+            </div>
         </section>
 
-        <form id="onboardingForm" class="onboarding-form">
-            <section class="question-group">
-                <h2>Core Questions</h2>
-                <div id="coreQuestions"></div>
-            </section>
+        <section class="chat-card">
+            <div id="chatMessages" class="chat-messages"></div>
 
-            <section class="question-group">
-                <h2 id="tierQuestionsTitle">Tier Questions</h2>
-                <div id="tierQuestions"></div>
-            </section>
+            <form id="chatForm" class="chat-form">
+                <input id="chatInput" type="text" placeholder="Type your answer..." required>
+                <button type="button" id="voiceBtn" class="ghost-btn">Voice</button>
+                <button type="submit" id="sendBtn" class="primary-btn">Send</button>
+            </form>
+        </section>
 
-            <div class="actions">
-                <button type="submit" class="primary-btn">Save and Continue</button>
+        <section class="edit-card">
+            <div class="edit-top">
+                <h2>Edit Saved Answers</h2>
+                <button id="refreshProfileBtn" class="ghost-btn" type="button">Refresh</button>
             </div>
-        </form>
+
+            <div class="field-row">
+                <label for="sectionSelect">Section</label>
+                <select id="sectionSelect"></select>
+            </div>
+
+            <form id="sectionForm" class="section-form"></form>
+            <button id="saveSectionBtn" class="primary-btn" type="button">Save Section</button>
+            <p id="statusText" class="status-text"></p>
+        </section>
     </main>
 </body>
 </html>

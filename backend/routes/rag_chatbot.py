@@ -98,7 +98,7 @@ def get_ai_system_prompt():
 
 
 def _build_personalization_context(user_id):
-    from models import User, OnboardingProfile
+    from models import User, OnboardingProfile, FamilyProfile
 
     user = User.query.get(user_id)
     if not user:
@@ -108,7 +108,8 @@ def _build_personalization_context(user_id):
     parts.append(f"Plan tier: {user.effective_tier}.")
 
     profile = OnboardingProfile.query.filter_by(user_id=user_id).first()
-    if not profile:
+    family_profile_v2 = FamilyProfile.query.filter_by(user_id=user_id).first()
+    if not profile and not family_profile_v2:
         parts.append(
             "No completed onboarding profile yet. Keep recommendations broadly practical and ask only one clarifying question when needed."
         )
@@ -146,6 +147,30 @@ def _build_personalization_context(user_id):
 
     if extra_support:
         parts.append("Special support notes: " + "; ".join(extra_support[:4]) + ".")
+
+    if family_profile_v2:
+        v2_bits = []
+        fp = family_profile_v2.family_profile or {}
+        if fp.get("state"):
+            v2_bits.append(f"state: {fp.get('state')}")
+        if fp.get("household_size") is not None:
+            v2_bits.append(f"homeschooling children: {fp.get('household_size')}")
+
+        goals = family_profile_v2.goals_preferences or {}
+        if goals.get("main_goal"):
+            v2_bits.append(f"main goal: {goals.get('main_goal')}")
+
+        support = family_profile_v2.special_needs_learning_support or {}
+        if support.get("support_needed") is True:
+            details = support.get("support_details") or "yes"
+            v2_bits.append(f"special support: {details}")
+
+        schedule = family_profile_v2.schedule_meal_planning or {}
+        if schedule.get("daily_rhythm"):
+            v2_bits.append(f"daily rhythm: {schedule.get('daily_rhythm')}")
+
+        if v2_bits:
+            parts.append("Onboarding profile v2: " + "; ".join(v2_bits[:6]) + ".")
 
     parts.append(
         "Use this profile naturally in advice without repeating every detail verbatim in each answer."

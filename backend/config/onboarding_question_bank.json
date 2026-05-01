@@ -1,0 +1,1766 @@
+{
+  "version": "2026-05-01-from-docx-v5",
+  "flow": {
+    "mode": "linear"
+  },
+  "sections": [
+    {
+      "key": "family_profile",
+      "title": "Family Profile"
+    },
+    {
+      "key": "child_profiles",
+      "title": "Child Profiles"
+    },
+    {
+      "key": "education_homeschool_plan",
+      "title": "Education / Homeschool Plan"
+    },
+    {
+      "key": "special_needs_learning_support",
+      "title": "Special Needs / Learning Support"
+    },
+    {
+      "key": "schedule_meal_planning",
+      "title": "Schedule / Meal Planning"
+    },
+    {
+      "key": "goals_preferences",
+      "title": "Goals / Preferences"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_001_what_should_we_call_you",
+      "section": "family_profile",
+      "field": "what_should_we_call_you",
+      "type": "text",
+      "required": true,
+      "prompt": "What should we call you? (Text field)"
+    },
+    {
+      "id": "q_002_what_state_do_you_homeschool_in",
+      "section": "family_profile",
+      "field": "what_state_do_you_homeschool_in",
+      "type": "single_select",
+      "required": true,
+      "prompt": "What state do you homeschool in? (Dropdown)",
+      "options": [
+        {
+          "value": "us_state",
+          "label": "US State"
+        },
+        {
+          "value": "outside_us",
+          "label": "Outside US"
+        }
+      ]
+    },
+    {
+      "id": "q_003_family_structure",
+      "section": "family_profile",
+      "field": "family_structure",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Family structure?",
+      "options": [
+        {
+          "value": "married",
+          "label": "Married"
+        },
+        {
+          "value": "single_parent",
+          "label": "Single parent"
+        },
+        {
+          "value": "divorced_co_parenting",
+          "label": "Divorced/co-parenting"
+        },
+        {
+          "value": "grandparent_guardian",
+          "label": "Grandparent guardian"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_004_who_helps_with_homeschooling_mostly_me_spouse_grandparent_tu",
+      "section": "family_profile",
+      "field": "who_helps_with_homeschooling_mostly_me_spouse_grandparent_tu",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Who helps with homeschooling?",
+      "options": [
+        {
+          "value": "mostly_me",
+          "label": "Mostly me"
+        },
+        {
+          "value": "spouse",
+          "label": "Spouse"
+        },
+        {
+          "value": "grandparent",
+          "label": "Grandparent"
+        },
+        {
+          "value": "tutor",
+          "label": "Tutor"
+        },
+        {
+          "value": "older_sibling",
+          "label": "Older sibling"
+        },
+        {
+          "value": "co_op",
+          "label": "Co-op"
+        },
+        {
+          "value": "no_regular_help",
+          "label": "No regular help"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_005_what_does_your_current_work_life_look_like_stay_at_home_pare",
+      "section": "family_profile",
+      "field": "what_does_your_current_work_life_look_like_stay_at_home_pare",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "What does your current work life look like?",
+      "options": [
+        {
+          "value": "stay_at_home_parent",
+          "label": "Stay-at-home parent"
+        },
+        {
+          "value": "part_time_from_home",
+          "label": "Part-time from home"
+        },
+        {
+          "value": "part_time_outside_home",
+          "label": "Part-time outside home"
+        },
+        {
+          "value": "full_time_from_home",
+          "label": "Full-time from home"
+        },
+        {
+          "value": "full_time_outside_home",
+          "label": "Full-time outside home"
+        },
+        {
+          "value": "self_employed",
+          "label": "Self-employed"
+        },
+        {
+          "value": "seasonal_changing_schedule",
+          "label": "Seasonal / changing schedule"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_006_what_hours_affect_homeschool_most_morning_afternoon_evening_",
+      "section": "family_profile",
+      "field": "what_hours_affect_homeschool_most_morning_afternoon_evening_",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "What hours affect homeschool most?",
+      "options": [
+        {
+          "value": "morning",
+          "label": "Morning"
+        },
+        {
+          "value": "afternoon",
+          "label": "Afternoon"
+        },
+        {
+          "value": "evening",
+          "label": "Evening"
+        },
+        {
+          "value": "night",
+          "label": "Night"
+        },
+        {
+          "value": "changes_weekly",
+          "label": "Changes weekly"
+        }
+      ]
+    },
+    {
+      "id": "q_007_how_flexible_is_your_schedule_very_flexible_somewhat_flexibl",
+      "section": "family_profile",
+      "field": "how_flexible_is_your_schedule_very_flexible_somewhat_flexibl",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "How flexible is your schedule?",
+      "options": [
+        {
+          "value": "very_flexible",
+          "label": "Very flexible"
+        },
+        {
+          "value": "somewhat_flexible",
+          "label": "Somewhat flexible"
+        },
+        {
+          "value": "mostly_fixed",
+          "label": "Mostly fixed"
+        },
+        {
+          "value": "highly_unpredictable",
+          "label": "Highly unpredictable"
+        }
+      ]
+    },
+    {
+      "id": "q_008_how_many_children_would_you_like_to_build_profiles_for_1_2_3",
+      "section": "family_profile",
+      "field": "how_many_children_would_you_like_to_build_profiles_for_1_2_3",
+      "type": "single_select",
+      "required": true,
+      "prompt": "How many children would you like to build profiles for? 1,2,3,4,5+",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5_plus",
+          "label": "5+"
+        }
+      ]
+    },
+    {
+      "id": "q_009_child_name",
+      "section": "child_profiles",
+      "field": "child_name",
+      "type": "text",
+      "required": true,
+      "prompt": "Child Name (Text field)"
+    },
+    {
+      "id": "q_010_age",
+      "section": "child_profiles",
+      "field": "age",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Age (Dropdown 0\u201318+)",
+      "options": [
+        {
+          "value": "0_2",
+          "label": "0-2"
+        },
+        {
+          "value": "3_5",
+          "label": "3-5"
+        },
+        {
+          "value": "6_8",
+          "label": "6-8"
+        },
+        {
+          "value": "9_11",
+          "label": "9-11"
+        },
+        {
+          "value": "12_14",
+          "label": "12-14"
+        },
+        {
+          "value": "15_18_plus",
+          "label": "15-18+"
+        }
+      ]
+    },
+    {
+      "id": "q_011_grade_level",
+      "section": "child_profiles",
+      "field": "grade_level",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Grade Level?",
+      "options": [
+        {
+          "value": "infant",
+          "label": "Infant"
+        },
+        {
+          "value": "toddler",
+          "label": "Toddler"
+        },
+        {
+          "value": "preschool",
+          "label": "Preschool"
+        },
+        {
+          "value": "pre_k",
+          "label": "Pre-K"
+        },
+        {
+          "value": "kindergarten",
+          "label": "Kindergarten"
+        },
+        {
+          "value": "1st_grade",
+          "label": "1st Grade"
+        },
+        {
+          "value": "12th_grade",
+          "label": "12th Grade"
+        },
+        {
+          "value": "college_transition",
+          "label": "College/Transition"
+        },
+        {
+          "value": "not_using_grade_levels",
+          "label": "Not using grade levels"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_012_reading_math_strong_memory_quick_learner_problem_solving",
+      "section": "child_profiles",
+      "field": "reading_math_strong_memory_quick_learner_problem_solving",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Learning strengths: academics",
+      "options": [
+        {
+          "value": "reading",
+          "label": "Reading"
+        },
+        {
+          "value": "math",
+          "label": "Math"
+        },
+        {
+          "value": "strong_memory",
+          "label": "Strong memory"
+        },
+        {
+          "value": "quick_learner",
+          "label": "Quick learner"
+        },
+        {
+          "value": "problem_solving",
+          "label": "Problem solving"
+        }
+      ]
+    },
+    {
+      "id": "q_013_creativity_art_music_storytelling_design_building",
+      "section": "child_profiles",
+      "field": "creativity_art_music_storytelling_design_building",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Learning strengths: creativity",
+      "options": [
+        {
+          "value": "creativity",
+          "label": "Creativity"
+        },
+        {
+          "value": "art",
+          "label": "Art"
+        },
+        {
+          "value": "music",
+          "label": "Music"
+        },
+        {
+          "value": "storytelling",
+          "label": "Storytelling"
+        },
+        {
+          "value": "design_building",
+          "label": "Design / building"
+        }
+      ]
+    },
+    {
+      "id": "q_014_leadership_communication_teamwork_encouraging_others_humor",
+      "section": "child_profiles",
+      "field": "leadership_communication_teamwork_encouraging_others_humor",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Learning strengths: social",
+      "options": [
+        {
+          "value": "leadership",
+          "label": "Leadership"
+        },
+        {
+          "value": "communication",
+          "label": "Communication"
+        },
+        {
+          "value": "teamwork",
+          "label": "Teamwork"
+        },
+        {
+          "value": "encouraging_others",
+          "label": "Encouraging others"
+        },
+        {
+          "value": "humor",
+          "label": "Humor"
+        }
+      ]
+    },
+    {
+      "id": "q_015_focus_independence_responsibility_persistence_attention_to_d",
+      "section": "child_profiles",
+      "field": "focus_independence_responsibility_persistence_attention_to_d",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Learning strengths: habits",
+      "options": [
+        {
+          "value": "focus",
+          "label": "Focus"
+        },
+        {
+          "value": "independence",
+          "label": "Independence"
+        },
+        {
+          "value": "responsibility",
+          "label": "Responsibility"
+        },
+        {
+          "value": "persistence",
+          "label": "Persistence"
+        },
+        {
+          "value": "attention_to_detail",
+          "label": "Attention to detail"
+        }
+      ]
+    },
+    {
+      "id": "q_016_athletics_movement_learning_building_with_hands_outdoor_lear",
+      "section": "child_profiles",
+      "field": "athletics_movement_learning_building_with_hands_outdoor_lear",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Learning strengths: movement and hands-on",
+      "options": [
+        {
+          "value": "athletics",
+          "label": "Athletics"
+        },
+        {
+          "value": "movement_learning",
+          "label": "Movement learning"
+        },
+        {
+          "value": "building_with_hands",
+          "label": "Building with hands"
+        },
+        {
+          "value": "outdoor_learning",
+          "label": "Outdoor learning"
+        }
+      ]
+    },
+    {
+      "id": "q_018_reading_fluency_reading_comprehension_spelling_writing_handw",
+      "section": "child_profiles",
+      "field": "reading_fluency_reading_comprehension_spelling_writing_handw",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Growth areas: academics",
+      "options": [
+        {
+          "value": "reading_fluency",
+          "label": "Reading fluency"
+        },
+        {
+          "value": "reading_comprehension",
+          "label": "Reading comprehension"
+        },
+        {
+          "value": "spelling",
+          "label": "Spelling"
+        },
+        {
+          "value": "writing",
+          "label": "Writing"
+        },
+        {
+          "value": "handwriting",
+          "label": "Handwriting"
+        },
+        {
+          "value": "math_facts",
+          "label": "Math facts"
+        },
+        {
+          "value": "math_confidence",
+          "label": "Math confidence"
+        },
+        {
+          "value": "following_directions",
+          "label": "Following directions"
+        }
+      ]
+    },
+    {
+      "id": "q_019_focus_attention_staying_on_task_motivation_organization_time",
+      "section": "child_profiles",
+      "field": "focus_attention_staying_on_task_motivation_organization_time",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Growth areas: executive function",
+      "options": [
+        {
+          "value": "focus_attention",
+          "label": "Focus / attention"
+        },
+        {
+          "value": "staying_on_task",
+          "label": "Staying on task"
+        },
+        {
+          "value": "motivation",
+          "label": "Motivation"
+        },
+        {
+          "value": "organization",
+          "label": "Organization"
+        },
+        {
+          "value": "time_management",
+          "label": "Time management"
+        },
+        {
+          "value": "completing_work_independently",
+          "label": "Completing work independently"
+        }
+      ]
+    },
+    {
+      "id": "q_020_anxiety_frustration_tolerance_big_emotions_perfectionism_con",
+      "section": "child_profiles",
+      "field": "anxiety_frustration_tolerance_big_emotions_perfectionism_con",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Growth areas: emotional",
+      "options": [
+        {
+          "value": "anxiety",
+          "label": "Anxiety"
+        },
+        {
+          "value": "frustration_tolerance",
+          "label": "Frustration tolerance"
+        },
+        {
+          "value": "big_emotions",
+          "label": "Big emotions"
+        },
+        {
+          "value": "perfectionism",
+          "label": "Perfectionism"
+        },
+        {
+          "value": "confidence",
+          "label": "Confidence"
+        },
+        {
+          "value": "school_resistance",
+          "label": "School resistance"
+        }
+      ]
+    },
+    {
+      "id": "q_021_sibling_relationships_friendships_peer_skills_respectful_com",
+      "section": "child_profiles",
+      "field": "sibling_relationships_friendships_peer_skills_respectful_com",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Growth areas: relationships",
+      "options": [
+        {
+          "value": "sibling_relationships",
+          "label": "Sibling relationships"
+        },
+        {
+          "value": "friendships_peer_skills",
+          "label": "Friendships / peer skills"
+        },
+        {
+          "value": "respectful_communication",
+          "label": "Respectful communication"
+        },
+        {
+          "value": "conflict_resolution",
+          "label": "Conflict resolution"
+        },
+        {
+          "value": "cooperation",
+          "label": "Cooperation"
+        },
+        {
+          "value": "emotional_connection",
+          "label": "Emotional connection"
+        }
+      ]
+    },
+    {
+      "id": "q_022_sensory_overwhelm_transitions_change_need_movement_breaks_au",
+      "section": "child_profiles",
+      "field": "sensory_overwhelm_transitions_change_need_movement_breaks_au",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Growth areas: sensory and transitions",
+      "options": [
+        {
+          "value": "sensory_overwhelm",
+          "label": "Sensory overwhelm"
+        },
+        {
+          "value": "transitions_change",
+          "label": "Transitions / change"
+        },
+        {
+          "value": "need_movement_breaks",
+          "label": "Need movement breaks"
+        },
+        {
+          "value": "auditory_overwhelm",
+          "label": "Auditory overwhelm"
+        },
+        {
+          "value": "routine_dependence",
+          "label": "Routine dependence"
+        }
+      ]
+    },
+    {
+      "id": "q_024_sensitive_strong_willed_easygoing_highly_curious_cautious_en",
+      "section": "child_profiles",
+      "field": "sensitive_strong_willed_easygoing_highly_curious_cautious_en",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Personality style",
+      "options": [
+        {
+          "value": "sensitive",
+          "label": "Sensitive"
+        },
+        {
+          "value": "strong_willed",
+          "label": "Strong-willed"
+        },
+        {
+          "value": "easygoing",
+          "label": "Easygoing"
+        },
+        {
+          "value": "highly_curious",
+          "label": "Highly curious"
+        },
+        {
+          "value": "cautious",
+          "label": "Cautious"
+        },
+        {
+          "value": "energetic",
+          "label": "Energetic"
+        },
+        {
+          "value": "deep_thinker",
+          "label": "Deep thinker"
+        },
+        {
+          "value": "social_butterfly",
+          "label": "Social butterfly"
+        },
+        {
+          "value": "independent",
+          "label": "Independent"
+        },
+        {
+          "value": "needs_reassurance",
+          "label": "Needs reassurance"
+        }
+      ]
+    },
+    {
+      "id": "q_025_praise_rewards_independence_fun_lessons_competition_parent_c",
+      "section": "child_profiles",
+      "field": "praise_rewards_independence_fun_lessons_competition_parent_c",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Motivation style",
+      "options": [
+        {
+          "value": "praise",
+          "label": "Praise"
+        },
+        {
+          "value": "rewards",
+          "label": "Rewards"
+        },
+        {
+          "value": "independence",
+          "label": "Independence"
+        },
+        {
+          "value": "fun_lessons",
+          "label": "Fun lessons"
+        },
+        {
+          "value": "competition",
+          "label": "Competition"
+        },
+        {
+          "value": "parent_connection",
+          "label": "Parent connection"
+        },
+        {
+          "value": "achievement",
+          "label": "Achievement"
+        },
+        {
+          "value": "helping_others",
+          "label": "Helping others"
+        }
+      ]
+    },
+    {
+      "id": "q_026_reading_listening_hands_on_movement_videos_discussion_mixed_",
+      "section": "child_profiles",
+      "field": "reading_listening_hands_on_movement_videos_discussion_mixed_",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Learning style",
+      "options": [
+        {
+          "value": "reading",
+          "label": "Reading"
+        },
+        {
+          "value": "listening",
+          "label": "Listening"
+        },
+        {
+          "value": "hands_on",
+          "label": "Hands-on"
+        },
+        {
+          "value": "movement",
+          "label": "Movement"
+        },
+        {
+          "value": "videos",
+          "label": "Videos"
+        },
+        {
+          "value": "discussion",
+          "label": "Discussion"
+        },
+        {
+          "value": "mixed",
+          "label": "Mixed"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_027_excellent_good_needs_reminders_struggles_often",
+      "section": "child_profiles",
+      "field": "excellent_good_needs_reminders_struggles_often",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Focus level",
+      "options": [
+        {
+          "value": "excellent",
+          "label": "Excellent"
+        },
+        {
+          "value": "good",
+          "label": "Good"
+        },
+        {
+          "value": "needs_reminders",
+          "label": "Needs reminders"
+        },
+        {
+          "value": "struggles_often",
+          "label": "Struggles often"
+        }
+      ]
+    },
+    {
+      "id": "q_028_yes_sometimes_rarely_needs_parent_nearby",
+      "section": "child_profiles",
+      "field": "yes_sometimes_rarely_needs_parent_nearby",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Can work independently?",
+      "options": [
+        {
+          "value": "yes",
+          "label": "Yes"
+        },
+        {
+          "value": "sometimes",
+          "label": "Sometimes"
+        },
+        {
+          "value": "rarely",
+          "label": "Rarely"
+        },
+        {
+          "value": "needs_parent_nearby",
+          "label": "Needs parent nearby"
+        }
+      ]
+    },
+    {
+      "id": "q_029_group_learning_small_groups_one_on_one_independent_mixed",
+      "section": "child_profiles",
+      "field": "group_learning_small_groups_one_on_one_independent_mixed",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Social preference",
+      "options": [
+        {
+          "value": "group_learning",
+          "label": "Group learning"
+        },
+        {
+          "value": "small_groups",
+          "label": "Small groups"
+        },
+        {
+          "value": "one_on_one",
+          "label": "One-on-one"
+        },
+        {
+          "value": "independent",
+          "label": "Independent"
+        },
+        {
+          "value": "mixed",
+          "label": "Mixed"
+        }
+      ]
+    },
+    {
+      "id": "q_030_reading_math_science_history_art_music_nature_hands_on_proje",
+      "section": "child_profiles",
+      "field": "reading_math_science_history_art_music_nature_hands_on_proje",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Favorite subject / hardest subject",
+      "options": [
+        {
+          "value": "reading",
+          "label": "Reading"
+        },
+        {
+          "value": "math",
+          "label": "Math"
+        },
+        {
+          "value": "science",
+          "label": "Science"
+        },
+        {
+          "value": "history",
+          "label": "History"
+        },
+        {
+          "value": "art",
+          "label": "Art"
+        },
+        {
+          "value": "music",
+          "label": "Music"
+        },
+        {
+          "value": "nature",
+          "label": "Nature"
+        },
+        {
+          "value": "hands_on_projects",
+          "label": "Hands-on projects"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_031_adhd_dyslexia_autism_anxiety_speech_delay_sensory_issues_gif",
+      "section": "child_profiles",
+      "field": "adhd_dyslexia_autism_anxiety_speech_delay_sensory_issues_gif",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Special supports",
+      "options": [
+        {
+          "value": "adhd",
+          "label": "ADHD"
+        },
+        {
+          "value": "dyslexia",
+          "label": "Dyslexia"
+        },
+        {
+          "value": "autism",
+          "label": "Autism"
+        },
+        {
+          "value": "anxiety",
+          "label": "Anxiety"
+        },
+        {
+          "value": "speech_delay",
+          "label": "Speech delay"
+        },
+        {
+          "value": "sensory_issues",
+          "label": "Sensory issues"
+        },
+        {
+          "value": "gifted",
+          "label": "Gifted"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "prefer_not_to_say",
+          "label": "Prefer not to say"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_032_early_morning_morning_midday_afternoon_evening_changes_daily",
+      "section": "child_profiles",
+      "field": "early_morning_morning_midday_afternoon_evening_changes_daily",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Best learning time",
+      "options": [
+        {
+          "value": "early_morning",
+          "label": "Early morning"
+        },
+        {
+          "value": "morning",
+          "label": "Morning"
+        },
+        {
+          "value": "midday",
+          "label": "Midday"
+        },
+        {
+          "value": "afternoon",
+          "label": "Afternoon"
+        },
+        {
+          "value": "evening",
+          "label": "Evening"
+        },
+        {
+          "value": "changes_daily",
+          "label": "Changes daily"
+        }
+      ]
+    },
+    {
+      "id": "q_033_anything_we_should_know_about_this_child",
+      "section": "child_profiles",
+      "field": "anything_we_should_know_about_this_child",
+      "type": "text",
+      "required": true,
+      "prompt": "Anything we should know about this child? (Short text field)"
+    },
+    {
+      "id": "q_034_why_are_you_homeschooling",
+      "section": "education_homeschool_plan",
+      "field": "why_are_you_homeschooling",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "Why are you homeschooling?",
+      "options": [
+        {
+          "value": "faith",
+          "label": "Faith"
+        },
+        {
+          "value": "family_closeness",
+          "label": "Family closeness"
+        },
+        {
+          "value": "academic_excellence",
+          "label": "Academic excellence"
+        },
+        {
+          "value": "freedom_flexibility",
+          "label": "Freedom / flexibility"
+        },
+        {
+          "value": "child_mental_health",
+          "label": "Child mental health"
+        },
+        {
+          "value": "special_needs_support",
+          "label": "Special needs support"
+        },
+        {
+          "value": "safety",
+          "label": "Safety"
+        },
+        {
+          "value": "travel_lifestyle",
+          "label": "Travel lifestyle"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_035_preferred_homeschool_style",
+      "section": "education_homeschool_plan",
+      "field": "preferred_homeschool_style",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Preferred homeschool style?",
+      "options": [
+        {
+          "value": "structured",
+          "label": "Structured"
+        },
+        {
+          "value": "mostly_structured",
+          "label": "Mostly structured"
+        },
+        {
+          "value": "balanced",
+          "label": "Balanced"
+        },
+        {
+          "value": "relaxed",
+          "label": "Relaxed"
+        },
+        {
+          "value": "unschooling",
+          "label": "Unschooling"
+        },
+        {
+          "value": "unsure",
+          "label": "Unsure"
+        }
+      ]
+    },
+    {
+      "id": "q_036_curriculum_preference",
+      "section": "education_homeschool_plan",
+      "field": "curriculum_preference",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Curriculum preference?",
+      "options": [
+        {
+          "value": "faith_based",
+          "label": "Faith-based"
+        },
+        {
+          "value": "secular",
+          "label": "Secular"
+        },
+        {
+          "value": "mix_of_both",
+          "label": "Mix of both"
+        },
+        {
+          "value": "need_help_deciding",
+          "label": "Need help deciding"
+        }
+      ]
+    },
+    {
+      "id": "q_037_biggest_need_right_now",
+      "section": "education_homeschool_plan",
+      "field": "biggest_need_right_now",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Biggest need right now?",
+      "options": [
+        {
+          "value": "curriculum_help",
+          "label": "Curriculum help"
+        },
+        {
+          "value": "scheduling",
+          "label": "Scheduling"
+        },
+        {
+          "value": "child_motivation",
+          "label": "Child motivation"
+        },
+        {
+          "value": "behavior_support",
+          "label": "Behavior support"
+        },
+        {
+          "value": "parent_burnout",
+          "label": "Parent burnout"
+        },
+        {
+          "value": "high_school_planning",
+          "label": "High school planning"
+        },
+        {
+          "value": "legal_compliance",
+          "label": "Legal compliance"
+        },
+        {
+          "value": "confidence",
+          "label": "Confidence"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_038_are_there_babies_toddlers_in_the_home_yes_no",
+      "section": "schedule_meal_planning",
+      "field": "are_there_babies_toddlers_in_the_home_yes_no",
+      "type": "boolean",
+      "required": true,
+      "prompt": "Are there babies / toddlers in the home? Yes / No"
+    },
+    {
+      "id": "q_039_how_do_mornings_usually_feel_calm_productive_busy_chaotic_ex",
+      "section": "schedule_meal_planning",
+      "field": "how_do_mornings_usually_feel_calm_productive_busy_chaotic_ex",
+      "type": "single_select",
+      "required": true,
+      "prompt": "How do mornings usually feel?",
+      "options": [
+        {
+          "value": "calm",
+          "label": "Calm"
+        },
+        {
+          "value": "productive",
+          "label": "Productive"
+        },
+        {
+          "value": "busy",
+          "label": "Busy"
+        },
+        {
+          "value": "chaotic",
+          "label": "Chaotic"
+        },
+        {
+          "value": "exhausting",
+          "label": "Exhausting"
+        }
+      ]
+    },
+    {
+      "id": "q_040_home_organization_level",
+      "section": "schedule_meal_planning",
+      "field": "home_organization_level",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Home organization level?",
+      "options": [
+        {
+          "value": "organized",
+          "label": "Organized"
+        },
+        {
+          "value": "mostly_manageable",
+          "label": "Mostly manageable"
+        },
+        {
+          "value": "behind_lately",
+          "label": "Behind lately"
+        },
+        {
+          "value": "overwhelmed",
+          "label": "Overwhelmed"
+        }
+      ]
+    },
+    {
+      "id": "q_041_biggest_daily_obstacle",
+      "section": "schedule_meal_planning",
+      "field": "biggest_daily_obstacle",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Biggest daily obstacle?",
+      "options": [
+        {
+          "value": "time",
+          "label": "Time"
+        },
+        {
+          "value": "work_schedule",
+          "label": "Work schedule"
+        },
+        {
+          "value": "multiple_ages",
+          "label": "Multiple ages"
+        },
+        {
+          "value": "child_resistance",
+          "label": "Child resistance"
+        },
+        {
+          "value": "burnout",
+          "label": "Burnout"
+        },
+        {
+          "value": "mess_clutter",
+          "label": "Mess/clutter"
+        },
+        {
+          "value": "special_needs",
+          "label": "Special needs"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_042_need_help_building_routines_yes_no",
+      "section": "schedule_meal_planning",
+      "field": "need_help_building_routines_yes_no",
+      "type": "boolean",
+      "required": true,
+      "prompt": "Need help building routines? Yes / No"
+    },
+    {
+      "id": "q_043_current_season",
+      "section": "goals_preferences",
+      "field": "current_season",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Current season?",
+      "options": [
+        {
+          "value": "thriving",
+          "label": "Thriving"
+        },
+        {
+          "value": "doing_okay",
+          "label": "Doing okay"
+        },
+        {
+          "value": "tired",
+          "label": "Tired"
+        },
+        {
+          "value": "surviving",
+          "label": "Surviving"
+        },
+        {
+          "value": "overwhelmed",
+          "label": "Overwhelmed"
+        }
+      ]
+    },
+    {
+      "id": "q_044_support_system_nearby",
+      "section": "goals_preferences",
+      "field": "support_system_nearby",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Support system nearby?",
+      "options": [
+        {
+          "value": "strong_support",
+          "label": "Strong support"
+        },
+        {
+          "value": "some_support",
+          "label": "Some support"
+        },
+        {
+          "value": "very_little_support",
+          "label": "Very little support"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ]
+    },
+    {
+      "id": "q_045_what_helps_when_stressed_prayer_quiet_time_exercise_journali",
+      "section": "goals_preferences",
+      "field": "what_helps_when_stressed_prayer_quiet_time_exercise_journali",
+      "type": "multi_select",
+      "required": true,
+      "prompt": "What helps when stressed?",
+      "options": [
+        {
+          "value": "prayer",
+          "label": "Prayer"
+        },
+        {
+          "value": "quiet_time",
+          "label": "Quiet time"
+        },
+        {
+          "value": "exercise",
+          "label": "Exercise"
+        },
+        {
+          "value": "journaling",
+          "label": "Journaling"
+        },
+        {
+          "value": "talking_with_friend",
+          "label": "Talking with friend"
+        },
+        {
+          "value": "sleep",
+          "label": "Sleep"
+        },
+        {
+          "value": "alone_time",
+          "label": "Alone time"
+        },
+        {
+          "value": "nature",
+          "label": "Nature"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_046_encouragement_reminders",
+      "section": "goals_preferences",
+      "field": "encouragement_reminders",
+      "type": "single_select",
+      "required": true,
+      "prompt": "Encouragement reminders?",
+      "options": [
+        {
+          "value": "daily",
+          "label": "Daily"
+        },
+        {
+          "value": "3x_weekly",
+          "label": "3x weekly"
+        },
+        {
+          "value": "weekly",
+          "label": "Weekly"
+        },
+        {
+          "value": "occasionally",
+          "label": "Occasionally"
+        },
+        {
+          "value": "no_thanks",
+          "label": "No thanks"
+        }
+      ]
+    },
+    {
+      "id": "q_047_need_meal_planning_help_yes_no",
+      "section": "schedule_meal_planning",
+      "field": "need_meal_planning_help_yes_no",
+      "type": "boolean",
+      "required": false,
+      "prompt": "Need meal planning help? Yes / No"
+    },
+    {
+      "id": "q_048_family_meal_size",
+      "section": "schedule_meal_planning",
+      "field": "family_meal_size",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Family meal size?",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "6",
+          "label": "6+"
+        }
+      ]
+    },
+    {
+      "id": "q_049_weekly_grocery_budget",
+      "section": "schedule_meal_planning",
+      "field": "weekly_grocery_budget",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Weekly grocery budget?",
+      "options": [
+        {
+          "value": "under_100",
+          "label": "Under $100"
+        },
+        {
+          "value": "100_150",
+          "label": "$100\u2013150"
+        },
+        {
+          "value": "150_250",
+          "label": "$150\u2013250"
+        },
+        {
+          "value": "250_400",
+          "label": "$250\u2013400"
+        },
+        {
+          "value": "400",
+          "label": "$400+"
+        }
+      ]
+    },
+    {
+      "id": "q_050_hardest_meal",
+      "section": "schedule_meal_planning",
+      "field": "hardest_meal",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Hardest meal?",
+      "options": [
+        {
+          "value": "breakfast",
+          "label": "Breakfast"
+        },
+        {
+          "value": "lunch",
+          "label": "Lunch"
+        },
+        {
+          "value": "dinner",
+          "label": "Dinner"
+        },
+        {
+          "value": "snacks",
+          "label": "Snacks"
+        },
+        {
+          "value": "all_of_it",
+          "label": "All of it"
+        }
+      ]
+    },
+    {
+      "id": "q_051_picky_eaters",
+      "section": "schedule_meal_planning",
+      "field": "picky_eaters",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Picky eaters?",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "mild",
+          "label": "Mild"
+        },
+        {
+          "value": "moderate",
+          "label": "Moderate"
+        },
+        {
+          "value": "severe",
+          "label": "Severe"
+        }
+      ]
+    },
+    {
+      "id": "q_052_dietary_needs",
+      "section": "schedule_meal_planning",
+      "field": "dietary_needs",
+      "type": "multi_select",
+      "required": false,
+      "prompt": "Dietary needs?",
+      "options": [
+        {
+          "value": "gluten_free",
+          "label": "Gluten free"
+        },
+        {
+          "value": "dairy_free",
+          "label": "Dairy free"
+        },
+        {
+          "value": "nut_free",
+          "label": "Nut free"
+        },
+        {
+          "value": "high_protein",
+          "label": "High protein"
+        },
+        {
+          "value": "low_sugar",
+          "label": "Low sugar"
+        },
+        {
+          "value": "natural_foods",
+          "label": "Natural foods"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_053_preferred_stores",
+      "section": "schedule_meal_planning",
+      "field": "preferred_stores",
+      "type": "multi_select",
+      "required": false,
+      "prompt": "Preferred stores?",
+      "options": [
+        {
+          "value": "walmart",
+          "label": "Walmart"
+        },
+        {
+          "value": "costco",
+          "label": "Costco"
+        },
+        {
+          "value": "aldi",
+          "label": "Aldi"
+        },
+        {
+          "value": "target",
+          "label": "Target"
+        },
+        {
+          "value": "trader_joe_s",
+          "label": "Trader Joe\u2019s"
+        },
+        {
+          "value": "safeway",
+          "label": "Safeway"
+        },
+        {
+          "value": "local_stores",
+          "label": "Local stores"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "id": "q_054_cooking_time_most_nights",
+      "section": "schedule_meal_planning",
+      "field": "cooking_time_most_nights",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Cooking time most nights?",
+      "options": [
+        {
+          "value": "15_min",
+          "label": "15 min"
+        },
+        {
+          "value": "30_min",
+          "label": "30 min"
+        },
+        {
+          "value": "45_min",
+          "label": "45 min"
+        },
+        {
+          "value": "1_hour",
+          "label": "1 hour+"
+        }
+      ]
+    },
+    {
+      "id": "q_055_want_faith_based_encouragement_yes_no",
+      "section": "goals_preferences",
+      "field": "want_faith_based_encouragement_yes_no",
+      "type": "boolean",
+      "required": false,
+      "prompt": "Want faith-based encouragement? Yes / No"
+    },
+    {
+      "id": "q_056_want_devotionals_daily_weekly_occasionally_no",
+      "section": "goals_preferences",
+      "field": "want_devotionals_daily_weekly_occasionally_no",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Want devotionals?",
+      "options": [
+        {
+          "value": "daily",
+          "label": "Daily"
+        },
+        {
+          "value": "weekly",
+          "label": "Weekly"
+        },
+        {
+          "value": "occasionally",
+          "label": "Occasionally"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "q_057_want_local_homeschool_groups_yes_no",
+      "section": "goals_preferences",
+      "field": "want_local_homeschool_groups_yes_no",
+      "type": "boolean",
+      "required": false,
+      "prompt": "Want local homeschool groups? Yes / No"
+    },
+    {
+      "id": "q_058_want_mentorship_yes_no",
+      "section": "goals_preferences",
+      "field": "want_mentorship_yes_no",
+      "type": "boolean",
+      "required": false,
+      "prompt": "Want mentorship? Yes / No"
+    },
+    {
+      "id": "q_059_interested_in_live_gracewise_calls_yes_no",
+      "section": "goals_preferences",
+      "field": "interested_in_live_gracewise_calls_yes_no",
+      "type": "boolean",
+      "required": false,
+      "prompt": "Interested in live GraceWise calls? Yes / No"
+    },
+    {
+      "id": "q_060_preferred_connection_style",
+      "section": "goals_preferences",
+      "field": "preferred_connection_style",
+      "type": "single_select",
+      "required": false,
+      "prompt": "Preferred connection style?",
+      "options": [
+        {
+          "value": "online_only",
+          "label": "Online only"
+        },
+        {
+          "value": "in_person_only",
+          "label": "In person only"
+        },
+        {
+          "value": "both",
+          "label": "Both"
+        },
+        {
+          "value": "not_now",
+          "label": "Not now"
+        }
+      ]
+    },
+    {
+      "id": "q_061_if_gracewise_could_help_your_family_grow_in_one_area_this_ye",
+      "section": "goals_preferences",
+      "field": "if_gracewise_could_help_your_family_grow_in_one_area_this_ye",
+      "type": "text",
+      "required": true,
+      "prompt": "If GraceWise could help your family grow in one area this year, what would it be?"
+    },
+    {
+      "id": "q_062_what_would_a_peaceful_homeschool_day_look_like_for_you",
+      "section": "goals_preferences",
+      "field": "what_would_a_peaceful_homeschool_day_look_like_for_you",
+      "type": "text",
+      "required": true,
+      "prompt": "What would a peaceful homeschool day look like for you?"
+    },
+    {
+      "id": "q_063_what_do_you_hope_your_children_remember_most_about_homeschoo",
+      "section": "goals_preferences",
+      "field": "what_do_you_hope_your_children_remember_most_about_homeschoo",
+      "type": "text",
+      "required": true,
+      "prompt": "What do you hope your children remember most about homeschooling?"
+    }
+  ]
+}

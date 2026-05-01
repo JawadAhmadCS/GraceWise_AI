@@ -30,6 +30,7 @@ from routes.quiz import quiz_bp
 from routes.homeschool_style_quiz import homeschool_style_quiz_bp
 from routes.billing import billing_bp
 from routes.onboarding import onboarding_bp
+from routes.onboarding_v2 import onboarding_v2_bp
 
 #Create Flask app
 app = Flask(__name__)
@@ -98,6 +99,7 @@ app.register_blueprint(quiz_bp, url_prefix="/quiz")
 app.register_blueprint(homeschool_style_quiz_bp, url_prefix="/quiz")
 app.register_blueprint(billing_bp, url_prefix="/billing")
 app.register_blueprint(onboarding_bp, url_prefix="/onboarding")
+app.register_blueprint(onboarding_v2_bp, url_prefix="/onboarding/v2")
 
 #Create tables (optional, for first run)
 with app.app_context():
