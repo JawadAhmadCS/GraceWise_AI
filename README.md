@@ -166,8 +166,27 @@ grace-wise/
    SMTP_USE_TLS=true
    EMAIL_FROM=no-reply@gracewise.ai
    
+   # Homeschool style quiz -> Systeme integration (webhook/Zapier)
+   SYSTEME_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/xxxx/yyyy
+   SYSTEME_WEBHOOK_AUTH_HEADER=
+   SYSTEME_WEBHOOK_AUTH_VALUE=
+   SYSTEME_DEFAULT_TAG=quiz-lead
+   # JSON map: result_key -> Systeme tag name or ID used in your Zap flow
+   SYSTEME_TAG_MAP={"classical":"tag_classical","charlotte_mason":"tag_charlotte","unit_study":"tag_unit","unschooling":"tag_unschooling","eclectic":"tag_eclectic"}
+   
    LANGCHAIN_TRACING_V2=false
    ```
+
+### Public Homeschool Style Quiz Flow
+
+- Landing page in Systeme.io links to: `/homeschool-quiz.html`
+- Quiz questions load from: `GET /quiz/homeschool-style/questions`
+- Answers are scored server-side only (no result shown yet): `POST /quiz/homeschool-style/submit`
+- Email gate submits lead + computed result to your webhook/Zap: `POST /quiz/homeschool-style/capture-lead`
+- User is redirected to on-site result page: `/homeschool-quiz-result.html?token=...`
+- Result page fetches final result: `GET /quiz/homeschool-style/result?token=...`
+
+This flow stores each submission in the `homeschool_style_submission` table, updates/creates lead context, syncs payload to your Systeme webhook, and sends the result email via configured SMTP.
 
 5. **Set up database**
    - Create a MySQL database named `gracewise`

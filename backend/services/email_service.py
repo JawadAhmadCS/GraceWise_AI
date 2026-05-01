@@ -107,3 +107,23 @@ def send_invoice_receipt_email(user, invoice_url):
         "GraceWise Team"
     )
     return send_email(user.email, "GraceWise invoice receipt", body)
+
+
+def send_homeschool_style_result_email(email, result_payload):
+    result_title = result_payload.get("result_title", "Your Homeschool Style")
+    summary = result_payload.get("result_summary", "")
+    strengths = result_payload.get("strengths", []) or []
+
+    strengths_text = "\n".join(f"- {item}" for item in strengths) if strengths else "- Personalized recommendations are ready."
+
+    body = (
+        "Hi there,\n\n"
+        "Your GraceWise homeschool style results are ready.\n\n"
+        f"Result: {result_title}\n\n"
+        f"{summary}\n\n"
+        "Your strengths:\n"
+        f"{strengths_text}\n\n"
+        "We are cheering you on as you build a peaceful, purpose-filled homeschool.\n\n"
+        "GraceWise Team"
+    )
+    return send_email(email, "Your GraceWise Homeschool Style Results", body)

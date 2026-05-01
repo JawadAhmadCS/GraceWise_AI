@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeschool Style Quiz | GraceWise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8f5ef;
+            --ink: #213547;
+            --accent: #b67a2d;
+            --accent-dark: #955f1f;
+            --paper: #fffdf9;
+            --soft: #efe5d6;
+            --success: #0f766e;
+            --error: #b42318;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% 10%, #fff6df 0%, transparent 40%),
+                radial-gradient(circle at 90% 30%, #f8e7d0 0%, transparent 30%),
+                var(--bg);
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .hero {
+            background: var(--paper);
+            border-radius: 24px;
+            padding: 36px;
+            box-shadow: 0 20px 40px rgba(33, 53, 71, 0.08);
+            border: 1px solid #f0e2ce;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-family: "Fraunces", serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.12;
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #496175;
+        }
+
+        form { margin-top: 26px; }
+
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #ecdcc6;
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .question-step {
+            margin: 0 0 10px;
+            color: var(--accent-dark);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .question-card h3 {
+            margin: 0 0 16px;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-card {
+            display: flex;
+            gap: 10px;
+            align-items: start;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #e9dcc9;
+            background: #fffcf7;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .option-card:hover {
+            border-color: #d3a665;
+            transform: translateY(-1px);
+        }
+
+        .option-card input[type="radio"] {
+            margin-top: 4px;
+            accent-color: var(--accent);
+        }
+
+        .primary-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--accent), #d19a4b);
+            box-shadow: 0 12px 30px rgba(182, 122, 45, 0.28);
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .email-gate {
+            display: none;
+            margin-top: 24px;
+            background: #fff;
+            border: 1px solid #e7d7c2;
+            border-radius: 18px;
+            padding: 26px;
+        }
+
+        .email-gate h2 {
+            margin: 0 0 10px;
+            font-family: "Fraunces", serif;
+            font-size: 1.9rem;
+        }
+
+        .email-gate p {
+            margin: 0 0 18px;
+            color: #4a6072;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #d8c8b2;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .status-box {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background: #eef2f7;
+            color: #2f4557;
+        }
+
+        .status-box.success {
+            background: #def7f0;
+            color: var(--success);
+        }
+
+        .status-box.error {
+            background: #fde7e9;
+            color: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .page { padding: 20px 14px 40px; }
+            .hero { padding: 20px; border-radius: 16px; }
+            .question-card { padding: 16px; }
+            .primary-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <div id="quiz-step">
+                <h1 id="quiz-title">What Is Your Homeschool Style?</h1>
+                <p class="subtitle" id="quiz-description">Answer these questions and discover your natural homeschool approach.</p>
+
+                <form id="homeschool-quiz-form" novalidate>
+                    <div id="quiz-container"></div>
+                    <button class="primary-btn" type="submit">Finish Quiz</button>
+                </form>
+            </div>
+
+            <section class="email-gate" id="email-gate">
+                <h2>Where should we send your personalized results?</h2>
+                <p>Enter your best email and we’ll send your homeschool style profile right away.</p>
+                <form id="email-capture-form">
+                    <input id="lead-email" class="email-input" type="email" placeholder="you@example.com" required>
+                    <button class="primary-btn" type="submit">Send My Results</button>
+                </form>
+            </section>
+
+            <div id="status-box" class="status-box">Loading quiz...</div>
+        </section>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/homeschool-quiz.js"></script>
+</body>
+</html>

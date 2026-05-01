@@ -27,6 +27,7 @@ from models import db  # import db from models.py
 from routes.rag_chatbot import rag_bp 
 from routes.auth import auth_bp
 from routes.quiz import quiz_bp
+from routes.homeschool_style_quiz import homeschool_style_quiz_bp
 from routes.billing import billing_bp
 from routes.onboarding import onboarding_bp
 
@@ -94,6 +95,7 @@ app.register_blueprint(planner_bp, url_prefix="/planner")
 app.register_blueprint(curriculum_bp, url_prefix="/curriculum")
 app.register_blueprint(rag_bp, url_prefix="/rag")
 app.register_blueprint(quiz_bp, url_prefix="/quiz")
+app.register_blueprint(homeschool_style_quiz_bp, url_prefix="/quiz")
 app.register_blueprint(billing_bp, url_prefix="/billing")
 app.register_blueprint(onboarding_bp, url_prefix="/onboarding")
 

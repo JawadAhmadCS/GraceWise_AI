@@ -19,5 +19,6 @@ from models.ai_chat_message import AiChatMessage
 from models.app_setting import AppSetting
 from models.onboarding_profile import OnboardingProfile
 from models.password_reset_token import PasswordResetToken
+from models.homeschool_style_submission import HomeschoolStyleSubmission
 
-__all__ = ['db', 'User', 'Child', 'Devotional', 'DevotionalProgress', 'Planner', 'Curriculum', 'Module', 'Lesson', 'Quiz', 'QuizResult', 'Notification', 'AiSession', 'AiChatMessage', 'AppSetting', 'OnboardingProfile', 'PasswordResetToken']
+__all__ = ['db', 'User', 'Child', 'Devotional', 'DevotionalProgress', 'Planner', 'Curriculum', 'Module', 'Lesson', 'Quiz', 'QuizResult', 'Notification', 'AiSession', 'AiChatMessage', 'AppSetting', 'OnboardingProfile', 'PasswordResetToken', 'HomeschoolStyleSubmission']
