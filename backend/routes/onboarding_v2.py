@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from models import db, User, FamilyProfile, OnboardingSession, OnboardingAnswer
 from utils.access_control import get_effective_tier
+from utils.admin_roles import is_superadmin
 from services.onboarding_v2_service import (
     SECTION_KEYS,
     apply_answer_to_profile,
@@ -17,6 +18,8 @@ from services.onboarding_v2_service import (
     index_answers_by_field,
     list_questions,
     load_question_bank,
+    save_question_bank,
+    get_question_bank_path,
 )
 
 
@@ -35,6 +38,14 @@ def _require_paid_tier(user):
     if tier == "free":
         return False, jsonify({"message": "Active subscription required before onboarding"}), 403
     return True, tier, None
+
+
+def _require_superadmin(user):
+    if not user or not user.is_admin:
+        return False, jsonify({"message": "Admin access required"}), 403
+    if not is_superadmin(user):
+        return False, jsonify({"message": "Superadmin access required"}), 403
+    return True, None, None
 
 
 def _get_or_create_profile(user_id):
@@ -152,6 +163,52 @@ def get_question_bank():
         "version": question_bank.get("version"),
         "sections": question_bank.get("sections", []),
         "questions": question_bank.get("questions", []),
+    }), 200
+
+
+@onboarding_v2_bp.route("/admin/question-bank", methods=["GET"])
+@jwt_required()
+def admin_get_question_bank():
+    user = _get_user()
+    allowed, error_response, status_code = _require_superadmin(user)
+    if not allowed:
+        return error_response, status_code
+
+    try:
+        question_bank = load_question_bank()
+        path = get_question_bank_path()
+    except Exception as exc:
+        return jsonify({"message": f"Question bank error: {exc}"}), 500
+
+    return jsonify({
+        "path": str(path),
+        "question_bank": question_bank,
+    }), 200
+
+
+@onboarding_v2_bp.route("/admin/question-bank", methods=["PUT"])
+@jwt_required()
+def admin_update_question_bank():
+    user = _get_user()
+    allowed, error_response, status_code = _require_superadmin(user)
+    if not allowed:
+        return error_response, status_code
+
+    payload = request.get_json(silent=True) or {}
+    question_bank = payload.get("question_bank")
+    if not isinstance(question_bank, dict):
+        return jsonify({"message": "question_bank object is required"}), 400
+
+    try:
+        result = save_question_bank(question_bank, updated_by=user.email)
+    except ValueError as exc:
+        return jsonify({"message": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"message": f"Failed to save question bank: {exc}"}), 500
+
+    return jsonify({
+        "message": "Onboarding question bank saved successfully",
+        "result": result,
     }), 200
 
 

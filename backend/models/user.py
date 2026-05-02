@@ -2,6 +2,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db
 from utils.access_control import get_effective_tier, has_active_subscription, tier_level
+from utils.admin_roles import is_superadmin
 
 
 class User(db.Model):
@@ -49,6 +50,7 @@ class User(db.Model):
             'created_at': self.created_at.isoformat(),
             'is_active': self.is_active,
             'is_admin': self.is_admin,
+            'is_superadmin': is_superadmin(self),
             'last_login': self.last_login.isoformat() if self.last_login else None,
             'subscription_tier': self.subscription_tier,
             'subscription_status': self.subscription_status,

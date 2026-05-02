@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import datetime
 from pathlib import Path
 
 
@@ -15,6 +16,7 @@ SECTION_KEYS = {
 
 YES_VALUES = {"yes", "y", "true", "1", "yeah", "yep", "sure", "ok", "okay"}
 NO_VALUES = {"no", "n", "false", "0", "nope", "not"}
+QUESTION_TYPES = {"text", "number", "boolean", "single_select", "multi_select"}
 
 
 def _default_question_bank_path():
@@ -22,19 +24,48 @@ def _default_question_bank_path():
     return base / "config" / "onboarding_question_bank.json"
 
 
-def load_question_bank():
+def get_question_bank_path():
     path_value = os.environ.get("ONBOARDING_QUESTION_BANK_PATH", "").strip()
-    path = Path(path_value) if path_value else _default_question_bank_path()
+    return Path(path_value) if path_value else _default_question_bank_path()
 
-    if not path.exists():
-        raise FileNotFoundError(f"Onboarding question bank not found: {path}")
 
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+def _validate_question_bank_data(data):
+    if not isinstance(data, dict):
+        raise ValueError("Question bank root must be a JSON object")
 
-    questions = data.get("questions") or []
+    sections = data.get("sections")
+    questions = data.get("questions")
+
+    if not isinstance(sections, list):
+        raise ValueError("Question bank 'sections' must be a list")
+    if not isinstance(questions, list):
+        raise ValueError("Question bank 'questions' must be a list")
+
+    section_keys = set()
+    for section in sections:
+        if not isinstance(section, dict):
+            raise ValueError("Each section must be an object")
+        section_key = (section.get("key") or "").strip()
+        section_title = (section.get("title") or "").strip()
+        if section_key not in SECTION_KEYS:
+            raise ValueError(f"Invalid section key '{section_key}' in sections")
+        if not section_title:
+            raise ValueError(f"Section '{section_key}' must include a non-empty title")
+        if section_key in section_keys:
+            raise ValueError(f"Duplicate section key: {section_key}")
+        section_keys.add(section_key)
+
+    missing_sections = SECTION_KEYS - section_keys
+    if missing_sections:
+        missing = ", ".join(sorted(missing_sections))
+        raise ValueError(f"Missing required sections: {missing}")
+
     question_ids = set()
+    question_fields = set()
     for q in questions:
+        if not isinstance(q, dict):
+            raise ValueError("Each question must be an object")
+
         qid = (q.get("id") or "").strip()
         if not qid:
             raise ValueError("Each question must have a non-empty id")
@@ -49,8 +80,82 @@ def load_question_bank():
         field = (q.get("field") or "").strip()
         if not field:
             raise ValueError(f"Question {qid} is missing field")
+        if field in question_fields:
+            raise ValueError(f"Duplicate question field: {field}")
+        question_fields.add(field)
+
+        qtype = (q.get("type") or "").strip().lower()
+        if qtype not in QUESTION_TYPES:
+            raise ValueError(f"Invalid type '{qtype}' for question {qid}")
+
+        prompt = (q.get("prompt") or "").strip()
+        if not prompt:
+            raise ValueError(f"Question {qid} is missing prompt")
+
+        if "required" not in q:
+            raise ValueError(f"Question {qid} must include required=true/false")
+        if not isinstance(q.get("required"), bool):
+            raise ValueError(f"Question {qid} has invalid required value")
+
+        if qtype in {"single_select", "multi_select"}:
+            options = q.get("options")
+            if not isinstance(options, list) or not options:
+                raise ValueError(f"Question {qid} must include non-empty options")
+            for option in options:
+                if isinstance(option, dict):
+                    value = str(option.get("value", "")).strip()
+                    label = str(option.get("label", "")).strip()
+                    if not value or not label:
+                        raise ValueError(f"Question {qid} has option missing value/label")
+                elif not str(option).strip():
+                    raise ValueError(f"Question {qid} has an empty option value")
+
+        condition = q.get("condition")
+        if condition is not None and not isinstance(condition, dict):
+            raise ValueError(f"Question {qid} condition must be an object")
 
     return data
+
+
+def load_question_bank():
+    path = get_question_bank_path()
+
+    if not path.exists():
+        raise FileNotFoundError(f"Onboarding question bank not found: {path}")
+
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return _validate_question_bank_data(data)
+
+
+def save_question_bank(data, updated_by="system"):
+    validated = _validate_question_bank_data(data)
+    path = get_question_bank_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if path.exists():
+        backup_dir = path.parent / "onboarding_backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        actor = re.sub(r"[^a-zA-Z0-9_.-]", "_", str(updated_by or "system"))
+        backup_path = backup_dir / f"onboarding_question_bank_{stamp}_{actor}.json"
+        backup_path.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+    else:
+        backup_path = None
+
+    rendered = json.dumps(validated, indent=2, ensure_ascii=False) + "\n"
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    temp_path.write_text(rendered, encoding="utf-8")
+    temp_path.replace(path)
+
+    return {
+        "path": str(path),
+        "backup_path": str(backup_path) if backup_path else None,
+        "question_count": len(validated.get("questions") or []),
+        "section_count": len(validated.get("sections") or []),
+        "version": validated.get("version"),
+    }
 
 
 def list_questions(question_bank):

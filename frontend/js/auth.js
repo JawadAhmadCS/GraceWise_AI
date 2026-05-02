@@ -201,7 +201,7 @@ class AuthSystem {
         this.setApiBaseUrl();
 
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-        const adminPages = ['admin-dashboard.html', 'all-users.html', 'admin-curriculum.html', 'admin-quiz.html', 'admin-settings.html'];
+        const adminPages = ['admin-dashboard.html', 'all-users.html', 'admin-curriculum.html', 'admin-quiz.html', 'admin-settings.html', 'admin-onboarding.html'];
 
         const userPages = [
             'dashboard.html',

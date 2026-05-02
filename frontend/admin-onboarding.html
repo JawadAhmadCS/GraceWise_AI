@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superadmin Onboarding Control - Gracewise</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="css/admin-sidebar.css">
+    <link rel="stylesheet" href="css/admin-onboarding.css">
+    <link rel="stylesheet" href="css/toast.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="js/toast.js?v=20260223" defer></script>
+    <script src="js/auth.js?v=20260223" defer></script>
+    <script src="js/config.js?v=20260223"></script>
+    <script src="js/admin-onboarding.js?v=20260503" defer></script>
+</head>
+<body>
+    <div class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="mobile-overlay"></div>
+
+    <div class="sidebar">
+        <div class="logo">
+            <img src="assest/logo/main_logo.png" alt="Gracewise Logo">
+        </div>
+        <nav class="nav-menu">
+            <a href="admin-dashboard.html" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="all-users.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="admin-curriculum.html" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Curriculum</span>
+            </a>
+            <a href="admin-quiz.html" class="nav-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Quiz Management</span>
+            </a>
+            <a href="admin-settings.html" class="nav-item">
+                <i class="fas fa-sliders-h"></i>
+                <span>AI Settings</span>
+            </a>
+            <a href="admin-onboarding.html" class="nav-item active">
+                <i class="fas fa-user-pen"></i>
+                <span>Onboarding Control</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-section">
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" onclick="auth.logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="search-bar">
+                <i class="fas fa-user-shield"></i>
+                <input type="text" value="Superadmin Onboarding Control" readonly>
+            </div>
+            <div class="header-right">
+                <div class="avatar">
+                    <i class="fas fa-user-circle" style="font-size: 32px; color: #b59c61;"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="settings-container">
+            <div id="superadminDenied" class="settings-card denied-card" style="display:none;">
+                <h1>Superadmin Access Required</h1>
+                <p>This screen is locked. Ask a superadmin to grant access or login with a superadmin account.</p>
+            </div>
+
+            <div id="editorCard" class="settings-card" style="display:none;">
+                <div class="settings-header">
+                    <h1>Onboarding Question Bank + Behavior</h1>
+                    <p>Full control for onboarding logic. Edit flow, sections, conditions, question types, prompts, and options in JSON.</p>
+                </div>
+
+                <div class="meta-row">
+                    <span id="filePath">Path: loading...</span>
+                    <span id="summaryText">Questions: 0 | Sections: 0</span>
+                </div>
+
+                <label for="questionBankInput">Question Bank JSON</label>
+                <textarea id="questionBankInput" rows="24" placeholder="Loading onboarding question bank..."></textarea>
+
+                <small class="field-hint">Tip: Save creates a backup copy automatically before replacing live config.</small>
+
+                <div class="settings-actions">
+                    <button type="button" class="btn-secondary" id="reloadBtn">Reload</button>
+                    <button type="button" class="btn-secondary" id="formatBtn">Format JSON</button>
+                    <button type="button" class="btn-primary" id="saveBtn">Save Changes</button>
+                </div>
+                <small id="statusText" class="field-hint"></small>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
