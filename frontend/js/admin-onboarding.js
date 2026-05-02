@@ -6,24 +6,44 @@ const API_BASE_URL = (() => {
     return onPublicHost ? `${origin}/api` : `${window.location.protocol}//${host}:5000`;
 })();
 
+let bank = null;
+let selectedQuestionIndex = -1;
+
+const REQUIRED_SECTION_KEYS = [
+    "family_profile",
+    "child_profiles",
+    "education_homeschool_plan",
+    "special_needs_learning_support",
+    "schedule_meal_planning",
+    "goals_preferences"
+];
+
 function getToken() {
     return localStorage.getItem("access_token") || localStorage.getItem("accessToken");
-}
-
-function setBusy(isBusy) {
-    const saveBtn = document.getElementById("saveBtn");
-    const reloadBtn = document.getElementById("reloadBtn");
-    const formatBtn = document.getElementById("formatBtn");
-
-    saveBtn.disabled = isBusy;
-    reloadBtn.disabled = isBusy;
-    formatBtn.disabled = isBusy;
-    saveBtn.textContent = isBusy ? "Saving..." : "Save Changes";
 }
 
 function setStatus(text) {
     const el = document.getElementById("statusText");
     el.textContent = text || "";
+}
+
+function setBusy(isBusy) {
+    [
+        "reloadBtn",
+        "saveBtn",
+        "addQuestionBtn",
+        "duplicateQuestionBtn",
+        "moveUpBtn",
+        "moveDownBtn",
+        "deleteQuestionBtn",
+        "applyQuestionBtn"
+    ].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.disabled = isBusy;
+    });
+
+    const saveBtn = document.getElementById("saveBtn");
+    if (saveBtn) saveBtn.textContent = isBusy ? "Saving..." : "Save All Changes";
 }
 
 function showEditor() {
@@ -36,10 +56,414 @@ function showDenied() {
     document.getElementById("superadminDenied").style.display = "block";
 }
 
-function renderSummary(questionBank) {
-    const sections = Array.isArray(questionBank?.sections) ? questionBank.sections.length : 0;
-    const questions = Array.isArray(questionBank?.questions) ? questionBank.questions.length : 0;
+function cloneData(data) {
+    return JSON.parse(JSON.stringify(data));
+}
+
+function normalizeBankShape(raw) {
+    const normalized = cloneData(raw || {});
+    if (!normalized.flow || typeof normalized.flow !== "object") normalized.flow = { mode: "linear" };
+    if (!Array.isArray(normalized.sections)) normalized.sections = [];
+    if (!Array.isArray(normalized.questions)) normalized.questions = [];
+
+    // Ensure required section keys exist.
+    const byKey = new Map(normalized.sections.map((s) => [s.key, s]));
+    normalized.sections = REQUIRED_SECTION_KEYS.map((key) => {
+        const existing = byKey.get(key) || {};
+        return {
+            key,
+            title: String(existing.title || key.replace(/_/g, " "))
+        };
+    });
+
+    return normalized;
+}
+
+function renderSummary() {
+    const sections = Array.isArray(bank?.sections) ? bank.sections.length : 0;
+    const questions = Array.isArray(bank?.questions) ? bank.questions.length : 0;
     document.getElementById("summaryText").textContent = `Questions: ${questions} | Sections: ${sections}`;
+}
+
+function renderGeneralFields() {
+    document.getElementById("versionInput").value = bank.version || "";
+    document.getElementById("flowModeInput").value = (bank.flow && bank.flow.mode) ? bank.flow.mode : "linear";
+}
+
+function renderSectionTitles() {
+    const container = document.getElementById("sectionTitleList");
+    container.innerHTML = "";
+
+    bank.sections.forEach((section) => {
+        const row = document.createElement("div");
+        row.className = "section-item";
+
+        const keyPill = document.createElement("div");
+        keyPill.className = "section-key-pill";
+        keyPill.textContent = section.key;
+
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.value = section.title || "";
+        titleInput.dataset.sectionKey = section.key;
+        titleInput.addEventListener("input", () => {
+            section.title = titleInput.value;
+        });
+
+        row.appendChild(keyPill);
+        row.appendChild(titleInput);
+        container.appendChild(row);
+    });
+}
+
+function applyGeneralFieldsToBank() {
+    bank.version = document.getElementById("versionInput").value.trim();
+    if (!bank.flow || typeof bank.flow !== "object") bank.flow = {};
+    bank.flow.mode = document.getElementById("flowModeInput").value || "linear";
+}
+
+function formatQuestionRowText(question) {
+    const section = question.section || "no-section";
+    const type = question.type || "text";
+    const field = question.field || "no-field";
+    return `${section} | ${type} | ${field}`;
+}
+
+function renderQuestionList() {
+    const listEl = document.getElementById("questionList");
+    const searchText = (document.getElementById("questionSearch").value || "").trim().toLowerCase();
+    listEl.innerHTML = "";
+
+    bank.questions.forEach((q, index) => {
+        const haystack = `${q.id || ""} ${q.field || ""} ${q.prompt || ""}`.toLowerCase();
+        if (searchText && !haystack.includes(searchText)) return;
+
+        const row = document.createElement("div");
+        row.className = `question-row ${index === selectedQuestionIndex ? "active" : ""}`;
+        row.dataset.index = String(index);
+
+        const id = document.createElement("div");
+        id.className = "question-row-id";
+        id.textContent = q.id || "(no id)";
+
+        const meta = document.createElement("div");
+        meta.className = "question-row-meta";
+        meta.textContent = formatQuestionRowText(q);
+
+        row.appendChild(id);
+        row.appendChild(meta);
+
+        row.addEventListener("click", () => {
+            if (!applyQuestionFromEditor()) return;
+            selectedQuestionIndex = index;
+            renderQuestionList();
+            renderQuestionEditor();
+        });
+
+        listEl.appendChild(row);
+    });
+}
+
+function renderSectionSelect() {
+    const select = document.getElementById("qSectionInput");
+    select.innerHTML = "";
+    bank.sections.forEach((section) => {
+        const option = document.createElement("option");
+        option.value = section.key;
+        option.textContent = `${section.title} (${section.key})`;
+        select.appendChild(option);
+    });
+}
+
+function stringifyPrimitive(value) {
+    if (typeof value === "boolean") return value ? "true" : "false";
+    if (typeof value === "number") return String(value);
+    if (value === null || value === undefined) return "";
+    return String(value);
+}
+
+function renderCondition(question) {
+    const cond = question.condition;
+    const modeInput = document.getElementById("condModeInput");
+    const fieldInput = document.getElementById("condFieldInput");
+    const valueInput = document.getElementById("condValueInput");
+
+    modeInput.value = "none";
+    fieldInput.value = "";
+    valueInput.value = "";
+
+    if (!cond || typeof cond !== "object") return;
+
+    fieldInput.value = cond.field || "";
+
+    if (Object.prototype.hasOwnProperty.call(cond, "equals")) {
+        modeInput.value = "equals";
+        valueInput.value = stringifyPrimitive(cond.equals);
+        return;
+    }
+
+    if (Array.isArray(cond.in)) {
+        modeInput.value = "in";
+        valueInput.value = cond.in.map((item) => stringifyPrimitive(item)).join(", ");
+        return;
+    }
+
+    if (cond.exists === true) {
+        modeInput.value = "exists";
+    }
+}
+
+function renderOptions(question) {
+    const textarea = document.getElementById("qOptionsInput");
+    const options = Array.isArray(question.options) ? question.options : [];
+
+    const lines = options.map((opt) => {
+        if (opt && typeof opt === "object" && !Array.isArray(opt)) {
+            const value = String(opt.value || "").trim();
+            const label = String(opt.label || value).trim();
+            const synonyms = Array.isArray(opt.synonyms) ? opt.synonyms.filter(Boolean).join(",") : "";
+            if (synonyms) return `${value} | ${label} | ${synonyms}`;
+            return `${value} | ${label}`;
+        }
+        const val = String(opt || "").trim();
+        return val ? `${val} | ${val}` : "";
+    }).filter(Boolean);
+
+    textarea.value = lines.join("\n");
+}
+
+function renderQuestionEditor() {
+    const q = bank.questions[selectedQuestionIndex];
+
+    if (!q) {
+        [
+            "qIdInput",
+            "qFieldInput",
+            "qPromptInput",
+            "qRetryPromptInput",
+            "qOptionsInput",
+            "condFieldInput",
+            "condValueInput"
+        ].forEach((id) => {
+            document.getElementById(id).value = "";
+        });
+        document.getElementById("qRequiredInput").checked = false;
+        document.getElementById("qTypeInput").value = "text";
+        document.getElementById("condModeInput").value = "none";
+        document.getElementById("qOptionsInput").disabled = true;
+        return;
+    }
+
+    document.getElementById("qIdInput").value = q.id || "";
+    document.getElementById("qFieldInput").value = q.field || "";
+    document.getElementById("qSectionInput").value = q.section || "";
+    document.getElementById("qTypeInput").value = q.type || "text";
+    document.getElementById("qRequiredInput").checked = !!q.required;
+    document.getElementById("qPromptInput").value = q.prompt || "";
+    document.getElementById("qRetryPromptInput").value = q.retry_prompt || "";
+
+    renderOptions(q);
+    renderCondition(q);
+    document.getElementById("qOptionsInput").disabled = !(q.type === "single_select" || q.type === "multi_select");
+}
+
+function parsePrimitive(raw) {
+    const value = String(raw || "").trim();
+    if (!value) return "";
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+    if (/^-?\d+$/.test(value)) return Number(value);
+    return value;
+}
+
+function parseOptions(text) {
+    const lines = String(text || "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    const parsed = [];
+    for (const line of lines) {
+        const parts = line.split("|").map((part) => part.trim());
+        const value = parts[0] || "";
+        const label = parts[1] || value;
+        const synonymsText = parts[2] || "";
+        const synonyms = synonymsText
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        if (!value) continue;
+
+        const opt = { value, label };
+        if (synonyms.length) opt.synonyms = synonyms;
+        parsed.push(opt);
+    }
+
+    return parsed;
+}
+
+function buildConditionFromEditor() {
+    const mode = document.getElementById("condModeInput").value;
+    const field = document.getElementById("condFieldInput").value.trim();
+    const rawValue = document.getElementById("condValueInput").value.trim();
+
+    if (mode === "none") return null;
+    if (!field) throw new Error("Condition field key is required.");
+
+    if (mode === "equals") {
+        if (!rawValue) throw new Error("Condition value is required for equals rule.");
+        return { field, equals: parsePrimitive(rawValue) };
+    }
+
+    if (mode === "in") {
+        if (!rawValue) throw new Error("At least one condition value is required.");
+        const values = rawValue
+            .split(",")
+            .map((item) => parsePrimitive(item))
+            .filter((item) => String(item).trim() !== "");
+        if (!values.length) throw new Error("At least one valid condition value is required.");
+        return { field, in: values };
+    }
+
+    if (mode === "exists") {
+        return { field, exists: true };
+    }
+
+    return null;
+}
+
+function validateUnique(question, indexToIgnore) {
+    const dupId = bank.questions.findIndex((q, idx) => idx !== indexToIgnore && q.id === question.id);
+    if (dupId !== -1) throw new Error(`Question ID '${question.id}' is already used.`);
+
+    const dupField = bank.questions.findIndex((q, idx) => idx !== indexToIgnore && q.field === question.field);
+    if (dupField !== -1) throw new Error(`Field key '${question.field}' is already used.`);
+}
+
+function applyQuestionFromEditor() {
+    if (selectedQuestionIndex < 0 || !bank.questions[selectedQuestionIndex]) return true;
+
+    const q = bank.questions[selectedQuestionIndex];
+
+    try {
+        const id = document.getElementById("qIdInput").value.trim();
+        const field = document.getElementById("qFieldInput").value.trim();
+        const section = document.getElementById("qSectionInput").value;
+        const type = document.getElementById("qTypeInput").value;
+        const required = document.getElementById("qRequiredInput").checked;
+        const prompt = document.getElementById("qPromptInput").value.trim();
+        const retryPrompt = document.getElementById("qRetryPromptInput").value.trim();
+        const optionText = document.getElementById("qOptionsInput").value;
+
+        if (!id) throw new Error("Question ID is required.");
+        if (!field) throw new Error("Field key is required.");
+        if (!section) throw new Error("Section is required.");
+        if (!prompt) throw new Error("Question prompt is required.");
+
+        const updated = { ...q };
+        updated.id = id;
+        updated.field = field;
+        updated.section = section;
+        updated.type = type;
+        updated.required = required;
+        updated.prompt = prompt;
+
+        if (retryPrompt) updated.retry_prompt = retryPrompt;
+        else delete updated.retry_prompt;
+
+        if (type === "single_select" || type === "multi_select") {
+            const options = parseOptions(optionText);
+            if (!options.length) throw new Error("Select questions need at least one option.");
+            updated.options = options;
+        } else {
+            delete updated.options;
+        }
+
+        const condition = buildConditionFromEditor();
+        if (condition) updated.condition = condition;
+        else delete updated.condition;
+
+        validateUnique(updated, selectedQuestionIndex);
+        bank.questions[selectedQuestionIndex] = updated;
+
+        renderQuestionList();
+        renderSummary();
+        setStatus("Question updated locally.");
+        return true;
+    } catch (error) {
+        setStatus(error.message || "Could not apply question changes.");
+        if (typeof Toast !== "undefined") Toast.error(error.message || "Question update failed");
+        return false;
+    }
+}
+
+function selectQuestion(index) {
+    if (index < 0 || index >= bank.questions.length) {
+        selectedQuestionIndex = -1;
+    } else {
+        selectedQuestionIndex = index;
+    }
+    renderQuestionList();
+    renderQuestionEditor();
+}
+
+function createDefaultQuestion() {
+    const seed = Date.now();
+    return {
+        id: `q_new_${seed}`,
+        section: bank.sections[0]?.key || REQUIRED_SECTION_KEYS[0],
+        field: `new_field_${seed}`,
+        type: "text",
+        required: false,
+        prompt: "New onboarding question"
+    };
+}
+
+function addQuestion() {
+    if (!applyQuestionFromEditor()) return;
+    bank.questions.push(createDefaultQuestion());
+    selectQuestion(bank.questions.length - 1);
+    renderSummary();
+}
+
+function duplicateQuestion() {
+    const current = bank.questions[selectedQuestionIndex];
+    if (!current) return;
+    if (!applyQuestionFromEditor()) return;
+
+    const copy = cloneData(current);
+    const seed = Date.now();
+    copy.id = `${copy.id}_copy_${seed}`;
+    copy.field = `${copy.field}_copy_${seed}`;
+
+    bank.questions.splice(selectedQuestionIndex + 1, 0, copy);
+    selectQuestion(selectedQuestionIndex + 1);
+    renderSummary();
+}
+
+function moveQuestion(direction) {
+    if (!applyQuestionFromEditor()) return;
+    const from = selectedQuestionIndex;
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= bank.questions.length) return;
+
+    const temp = bank.questions[from];
+    bank.questions[from] = bank.questions[to];
+    bank.questions[to] = temp;
+    selectQuestion(to);
+}
+
+function deleteQuestion() {
+    if (selectedQuestionIndex < 0) return;
+    const q = bank.questions[selectedQuestionIndex];
+    const ok = window.confirm(`Delete question '${q.id}'?`);
+    if (!ok) return;
+
+    bank.questions.splice(selectedQuestionIndex, 1);
+    const newIndex = Math.min(selectedQuestionIndex, bank.questions.length - 1);
+    selectQuestion(newIndex);
+    renderSummary();
 }
 
 async function ensureSuperadmin() {
@@ -51,7 +475,7 @@ async function ensureSuperadmin() {
     try {
         await auth.syncCurrentUser();
     } catch (_) {
-        // Ignore sync failure and fallback to local user snapshot.
+        // Keep local snapshot if sync fails.
     }
 
     const user = auth.getCurrentUser();
@@ -70,7 +494,7 @@ async function ensureSuperadmin() {
 }
 
 async function loadQuestionBank() {
-    setStatus("Loading onboarding config...");
+    setStatus("Loading onboarding settings...");
 
     const response = await fetch(`${API_BASE_URL}/onboarding/v2/admin/question-bank`, {
         headers: {
@@ -80,43 +504,28 @@ async function loadQuestionBank() {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Failed to load onboarding config");
+        throw new Error(data.message || "Failed to load onboarding settings");
     }
 
-    const bank = data.question_bank || {};
+    bank = normalizeBankShape(data.question_bank || {});
     document.getElementById("filePath").textContent = `Path: ${data.path || "unknown"}`;
-    document.getElementById("questionBankInput").value = JSON.stringify(bank, null, 2);
-    renderSummary(bank);
-    setStatus("Loaded latest onboarding config.");
+
+    renderGeneralFields();
+    renderSectionTitles();
+    renderSectionSelect();
+
+    selectQuestion(bank.questions.length ? 0 : -1);
+    renderSummary();
+    setStatus("Loaded onboarding settings.");
 }
 
-function formatJson() {
-    const input = document.getElementById("questionBankInput");
-    try {
-        const parsed = JSON.parse(input.value || "{}");
-        input.value = JSON.stringify(parsed, null, 2);
-        renderSummary(parsed);
-        setStatus("JSON formatted.");
-    } catch (error) {
-        if (typeof Toast !== "undefined") Toast.error("JSON format invalid");
-        setStatus(`JSON error: ${error.message}`);
-    }
-}
+async function saveAllChanges() {
+    if (!applyQuestionFromEditor()) return;
 
-async function saveQuestionBank() {
-    const input = document.getElementById("questionBankInput");
-    let parsed;
-
-    try {
-        parsed = JSON.parse(input.value || "{}");
-    } catch (error) {
-        if (typeof Toast !== "undefined") Toast.error("Please fix JSON before saving");
-        setStatus(`JSON error: ${error.message}`);
-        return;
-    }
+    applyGeneralFieldsToBank();
 
     setBusy(true);
-    setStatus("Saving onboarding config...");
+    setStatus("Saving onboarding settings...");
 
     try {
         const response = await fetch(`${API_BASE_URL}/onboarding/v2/admin/question-bank`, {
@@ -125,7 +534,7 @@ async function saveQuestionBank() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${getToken()}`
             },
-            body: JSON.stringify({ question_bank: parsed })
+            body: JSON.stringify({ question_bank: bank })
         });
         const data = await response.json();
 
@@ -133,10 +542,9 @@ async function saveQuestionBank() {
             throw new Error(data.message || "Save failed");
         }
 
-        renderSummary(parsed);
         const backupPath = data?.result?.backup_path ? ` Backup: ${data.result.backup_path}` : "";
         setStatus(`Saved successfully.${backupPath}`);
-        if (typeof Toast !== "undefined") Toast.success("Onboarding config saved");
+        if (typeof Toast !== "undefined") Toast.success("Onboarding settings saved");
     } catch (error) {
         setStatus(`Save failed: ${error.message}`);
         if (typeof Toast !== "undefined") Toast.error(error.message || "Save failed");
@@ -163,11 +571,13 @@ function initMobileMenu() {
     if (overlay) overlay.addEventListener("click", toggleMobileMenu);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    initMobileMenu();
-
-    const allowed = await ensureSuperadmin();
-    if (!allowed) return;
+function bindEvents() {
+    document.getElementById("questionSearch").addEventListener("input", renderQuestionList);
+    document.getElementById("qTypeInput").addEventListener("change", () => {
+        const type = document.getElementById("qTypeInput").value;
+        const optionsInput = document.getElementById("qOptionsInput");
+        optionsInput.disabled = !(type === "single_select" || type === "multi_select");
+    });
 
     document.getElementById("reloadBtn").addEventListener("click", async () => {
         try {
@@ -177,8 +587,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (typeof Toast !== "undefined") Toast.error(error.message || "Load failed");
         }
     });
-    document.getElementById("formatBtn").addEventListener("click", formatJson);
-    document.getElementById("saveBtn").addEventListener("click", saveQuestionBank);
+
+    document.getElementById("saveBtn").addEventListener("click", saveAllChanges);
+    document.getElementById("addQuestionBtn").addEventListener("click", addQuestion);
+    document.getElementById("duplicateQuestionBtn").addEventListener("click", duplicateQuestion);
+    document.getElementById("moveUpBtn").addEventListener("click", () => moveQuestion(-1));
+    document.getElementById("moveDownBtn").addEventListener("click", () => moveQuestion(1));
+    document.getElementById("deleteQuestionBtn").addEventListener("click", deleteQuestion);
+    document.getElementById("applyQuestionBtn").addEventListener("click", applyQuestionFromEditor);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    initMobileMenu();
+
+    const allowed = await ensureSuperadmin();
+    if (!allowed) return;
+
+    bindEvents();
 
     try {
         await loadQuestionBank();

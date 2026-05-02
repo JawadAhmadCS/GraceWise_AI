@@ -80,8 +80,8 @@
 
             <div id="editorCard" class="settings-card" style="display:none;">
                 <div class="settings-header">
-                    <h1>Onboarding Question Bank + Behavior</h1>
-                    <p>Full control for onboarding logic. Edit flow, sections, conditions, question types, prompts, and options in JSON.</p>
+                    <h1>Onboarding Builder</h1>
+                    <p>Edit onboarding behavior and questions using simple fields. No coding needed.</p>
                 </div>
 
                 <div class="meta-row">
@@ -89,15 +89,122 @@
                     <span id="summaryText">Questions: 0 | Sections: 0</span>
                 </div>
 
-                <label for="questionBankInput">Question Bank JSON</label>
-                <textarea id="questionBankInput" rows="24" placeholder="Loading onboarding question bank..."></textarea>
+                <div class="top-grid">
+                    <div class="panel">
+                        <h3>General Behavior</h3>
+                        <div class="form-grid-two">
+                            <div>
+                                <label for="versionInput">Version</label>
+                                <input id="versionInput" type="text" placeholder="e.g. 2026-05-03-v1">
+                            </div>
+                            <div>
+                                <label for="flowModeInput">Flow Mode</label>
+                                <select id="flowModeInput">
+                                    <option value="linear">Linear</option>
+                                    <option value="adaptive">Adaptive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                <small class="field-hint">Tip: Save creates a backup copy automatically before replacing live config.</small>
+                    <div class="panel">
+                        <h3>Section Titles</h3>
+                        <div id="sectionTitleList" class="section-title-list"></div>
+                    </div>
+                </div>
+
+                <div class="question-builder">
+                    <div class="question-list-panel">
+                        <div class="question-list-header">
+                            <h3>Questions</h3>
+                            <input id="questionSearch" type="text" placeholder="Search by id, field, prompt">
+                        </div>
+                        <div id="questionList" class="question-list"></div>
+                        <div class="list-actions">
+                            <button type="button" class="btn-secondary" id="addQuestionBtn">Add</button>
+                            <button type="button" class="btn-secondary" id="duplicateQuestionBtn">Duplicate</button>
+                            <button type="button" class="btn-secondary" id="moveUpBtn">Up</button>
+                            <button type="button" class="btn-secondary" id="moveDownBtn">Down</button>
+                            <button type="button" class="btn-danger" id="deleteQuestionBtn">Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="question-edit-panel">
+                        <h3>Question Editor</h3>
+                        <div class="form-grid-two">
+                            <div>
+                                <label for="qIdInput">Question ID</label>
+                                <input id="qIdInput" type="text">
+                            </div>
+                            <div>
+                                <label for="qFieldInput">Field Key</label>
+                                <input id="qFieldInput" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-two">
+                            <div>
+                                <label for="qSectionInput">Section</label>
+                                <select id="qSectionInput"></select>
+                            </div>
+                            <div>
+                                <label for="qTypeInput">Type</label>
+                                <select id="qTypeInput">
+                                    <option value="text">Text</option>
+                                    <option value="number">Number</option>
+                                    <option value="boolean">Yes/No</option>
+                                    <option value="single_select">Single Select</option>
+                                    <option value="multi_select">Multi Select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="checkbox-label" for="qRequiredInput">
+                            <input id="qRequiredInput" type="checkbox">
+                            Required question
+                        </label>
+
+                        <label for="qPromptInput">Question Prompt</label>
+                        <textarea id="qPromptInput" rows="3"></textarea>
+
+                        <label for="qRetryPromptInput">Retry Prompt (optional)</label>
+                        <textarea id="qRetryPromptInput" rows="2" placeholder="Shown when answer is unclear"></textarea>
+
+                        <label for="qOptionsInput">Options (for select questions)</label>
+                        <textarea id="qOptionsInput" rows="5" placeholder="One option per line: value | label | synonym1,synonym2"></textarea>
+
+                        <div class="condition-box">
+                            <h4>Show Question Only If (optional)</h4>
+                            <div class="form-grid-three">
+                                <div>
+                                    <label for="condModeInput">Rule Type</label>
+                                    <select id="condModeInput">
+                                        <option value="none">Always show</option>
+                                        <option value="equals">Field equals value</option>
+                                        <option value="in">Field is one of values</option>
+                                        <option value="exists">Field has any answer</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="condFieldInput">Field Key</label>
+                                    <input id="condFieldInput" type="text" placeholder="e.g. family_structure">
+                                </div>
+                                <div>
+                                    <label for="condValueInput">Value(s)</label>
+                                    <input id="condValueInput" type="text" placeholder="single value or comma list">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="editor-actions">
+                            <button type="button" class="btn-secondary" id="applyQuestionBtn">Apply This Question</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="settings-actions">
                     <button type="button" class="btn-secondary" id="reloadBtn">Reload</button>
-                    <button type="button" class="btn-secondary" id="formatBtn">Format JSON</button>
-                    <button type="button" class="btn-primary" id="saveBtn">Save Changes</button>
+                    <button type="button" class="btn-primary" id="saveBtn">Save All Changes</button>
                 </div>
                 <small id="statusText" class="field-hint"></small>
             </div>
