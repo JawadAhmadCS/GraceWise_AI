@@ -122,11 +122,89 @@ function applyGeneralFieldsToBank() {
     bank.flow.mode = document.getElementById("flowModeInput").value || "linear";
 }
 
+function slugifyValue(value, fallback = "item") {
+    const slug = String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 48);
+    return slug || fallback;
+}
+
+function buildQuestionId(sectionKey, promptText) {
+    const sectionSlug = slugifyValue(sectionKey, "section");
+    const promptSlug = slugifyValue(promptText, "question");
+    return `q_${sectionSlug}_${promptSlug}`;
+}
+
+function buildFieldKey(sectionKey, promptText) {
+    const sectionSlug = slugifyValue(sectionKey, "section");
+    const promptSlug = slugifyValue(promptText, "field");
+    return `${sectionSlug}_${promptSlug}`;
+}
+
+function makeUniqueValue(baseValue, usedSet) {
+    if (!usedSet.has(baseValue)) return baseValue;
+    let counter = 2;
+    let candidate = `${baseValue}_${counter}`;
+    while (usedSet.has(candidate)) {
+        counter += 1;
+        candidate = `${baseValue}_${counter}`;
+    }
+    return candidate;
+}
+
+function getUsedIdSet(indexToIgnore = -1) {
+    const used = new Set();
+    bank.questions.forEach((question, idx) => {
+        if (idx === indexToIgnore) return;
+        const id = String(question.id || "").trim();
+        if (id) used.add(id);
+    });
+    return used;
+}
+
+function getUsedFieldSet(indexToIgnore = -1) {
+    const used = new Set();
+    bank.questions.forEach((question, idx) => {
+        if (idx === indexToIgnore) return;
+        const field = String(question.field || "").trim();
+        if (field) used.add(field);
+    });
+    return used;
+}
+
+function generateIdentifiers(sectionKey, promptText, indexToIgnore = -1) {
+    const baseId = buildQuestionId(sectionKey, promptText);
+    const baseField = buildFieldKey(sectionKey, promptText);
+    const id = makeUniqueValue(baseId, getUsedIdSet(indexToIgnore));
+    const field = makeUniqueValue(baseField, getUsedFieldSet(indexToIgnore));
+    return { id, field };
+}
+
+function ensureQuestionIdentifiers(question, indexToIgnore = -1) {
+    const hasId = String(question.id || "").trim().length > 0;
+    const hasField = String(question.field || "").trim().length > 0;
+    if (hasId && hasField) return question;
+
+    const generated = generateIdentifiers(question.section, question.prompt, indexToIgnore);
+    if (!hasId) question.id = generated.id;
+    if (!hasField) question.field = generated.field;
+    return question;
+}
+
+function ensureAllIdentifiers() {
+    bank.questions.forEach((question, index) => {
+        ensureQuestionIdentifiers(question, index);
+        validateUnique(question, index);
+    });
+}
+
 function formatQuestionRowText(question) {
     const section = question.section || "no-section";
     const type = question.type || "text";
-    const field = question.field || "no-field";
-    return `${section} | ${type} | ${field}`;
+    const required = question.required ? "Required" : "Optional";
+    return `${section} | ${type} | ${required}`;
 }
 
 function renderQuestionList() {
@@ -144,7 +222,7 @@ function renderQuestionList() {
 
         const id = document.createElement("div");
         id.className = "question-row-id";
-        id.textContent = q.id || "(no id)";
+        id.textContent = q.prompt || "Untitled question";
 
         const meta = document.createElement("div");
         meta.className = "question-row-meta";
@@ -237,8 +315,6 @@ function renderQuestionEditor() {
 
     if (!q) {
         [
-            "qIdInput",
-            "qFieldInput",
             "qPromptInput",
             "qRetryPromptInput",
             "qOptionsInput",
@@ -254,8 +330,6 @@ function renderQuestionEditor() {
         return;
     }
 
-    document.getElementById("qIdInput").value = q.id || "";
-    document.getElementById("qFieldInput").value = q.field || "";
     document.getElementById("qSectionInput").value = q.section || "";
     document.getElementById("qTypeInput").value = q.type || "text";
     document.getElementById("qRequiredInput").checked = !!q.required;
@@ -347,8 +421,6 @@ function applyQuestionFromEditor() {
     const q = bank.questions[selectedQuestionIndex];
 
     try {
-        const id = document.getElementById("qIdInput").value.trim();
-        const field = document.getElementById("qFieldInput").value.trim();
         const section = document.getElementById("qSectionInput").value;
         const type = document.getElementById("qTypeInput").value;
         const required = document.getElementById("qRequiredInput").checked;
@@ -356,14 +428,10 @@ function applyQuestionFromEditor() {
         const retryPrompt = document.getElementById("qRetryPromptInput").value.trim();
         const optionText = document.getElementById("qOptionsInput").value;
 
-        if (!id) throw new Error("Question ID is required.");
-        if (!field) throw new Error("Field key is required.");
         if (!section) throw new Error("Section is required.");
         if (!prompt) throw new Error("Question prompt is required.");
 
         const updated = { ...q };
-        updated.id = id;
-        updated.field = field;
         updated.section = section;
         updated.type = type;
         updated.required = required;
@@ -384,6 +452,7 @@ function applyQuestionFromEditor() {
         if (condition) updated.condition = condition;
         else delete updated.condition;
 
+        ensureQuestionIdentifiers(updated, selectedQuestionIndex);
         validateUnique(updated, selectedQuestionIndex);
         bank.questions[selectedQuestionIndex] = updated;
 
@@ -409,14 +478,16 @@ function selectQuestion(index) {
 }
 
 function createDefaultQuestion() {
-    const seed = Date.now();
+    const section = bank.sections[0]?.key || REQUIRED_SECTION_KEYS[0];
+    const prompt = "New onboarding question";
+    const generated = generateIdentifiers(section, prompt);
     return {
-        id: `q_new_${seed}`,
-        section: bank.sections[0]?.key || REQUIRED_SECTION_KEYS[0],
-        field: `new_field_${seed}`,
+        id: generated.id,
+        section,
+        field: generated.field,
         type: "text",
         required: false,
-        prompt: "New onboarding question"
+        prompt
     };
 }
 
@@ -433,9 +504,9 @@ function duplicateQuestion() {
     if (!applyQuestionFromEditor()) return;
 
     const copy = cloneData(current);
-    const seed = Date.now();
-    copy.id = `${copy.id}_copy_${seed}`;
-    copy.field = `${copy.field}_copy_${seed}`;
+    const generated = generateIdentifiers(copy.section, `${copy.prompt} copy`);
+    copy.id = generated.id;
+    copy.field = generated.field;
 
     bank.questions.splice(selectedQuestionIndex + 1, 0, copy);
     selectQuestion(selectedQuestionIndex + 1);
@@ -457,7 +528,8 @@ function moveQuestion(direction) {
 function deleteQuestion() {
     if (selectedQuestionIndex < 0) return;
     const q = bank.questions[selectedQuestionIndex];
-    const ok = window.confirm(`Delete question '${q.id}'?`);
+    const promptLabel = q.prompt || "this question";
+    const ok = window.confirm(`Delete '${promptLabel}'?`);
     if (!ok) return;
 
     bank.questions.splice(selectedQuestionIndex, 1);
@@ -521,6 +593,13 @@ async function loadQuestionBank() {
 
 async function saveAllChanges() {
     if (!applyQuestionFromEditor()) return;
+    try {
+        ensureAllIdentifiers();
+    } catch (error) {
+        setStatus(error.message || "Could not prepare question IDs.");
+        if (typeof Toast !== "undefined") Toast.error(error.message || "Save blocked");
+        return;
+    }
 
     applyGeneralFieldsToBank();
 
