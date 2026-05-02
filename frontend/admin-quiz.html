@@ -287,6 +287,148 @@
             background: #c82333;
         }
 
+        .quiz-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .edit-quiz-btn {
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .edit-quiz-btn:hover {
+            background: #24578f;
+        }
+
+        .toggle-quiz-btn {
+            background: #5a6575;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .toggle-quiz-btn:hover {
+            background: #4a5568;
+        }
+
+        .builder-shell {
+            display: grid;
+            grid-template-columns: 1.05fr 1fr;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .builder-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            background: #fff;
+        }
+
+        .builder-card h4 {
+            margin: 0 0 10px;
+            color: #2d3748;
+        }
+
+        .question-list-compact {
+            max-height: 460px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .question-row-compact {
+            padding: 10px 12px;
+            border-bottom: 1px solid #edf2f7;
+            cursor: pointer;
+        }
+
+        .question-row-compact:last-child {
+            border-bottom: none;
+        }
+
+        .question-row-compact.active {
+            background: #fff3e0;
+            border-left: 4px solid #b59c61;
+            padding-left: 8px;
+        }
+
+        .question-row-compact-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .question-row-compact-meta {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .builder-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .small-btn {
+            border: none;
+            border-radius: 7px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .small-btn.primary {
+            background: #b59c61;
+            color: #fff;
+        }
+
+        .small-btn.danger {
+            background: #e53e3e;
+            color: #fff;
+        }
+
+        .option-row-builder {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .builder-help {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 1024px) {
+            .builder-shell {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .tab-container {
@@ -327,6 +469,11 @@
             .quiz-header {
                 flex-direction: column;
                 gap: 12px;
+            }
+
+            .quiz-actions {
+                width: 100%;
+                justify-content: flex-start;
             }
 
             .quiz-stats {
@@ -452,6 +599,9 @@
                     <button class="tab-button" data-tab="generate">
                         <i class="fas fa-magic"></i> Generate Quiz
                     </button>
+                    <button class="tab-button" data-tab="builder">
+                        <i class="fas fa-pen-ruler"></i> Quiz Builder
+                    </button>
                     <button class="tab-button" data-tab="manage">
                         <i class="fas fa-list"></i> Manage Quizzes
                     </button>
@@ -510,6 +660,87 @@
                     </form>
                 </div>
 
+                <!-- Quiz Builder Tab -->
+                <div class="tab-content" id="builder-tab">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <h3 style="margin:0;">Build / Edit Quiz</h3>
+                        <button type="button" class="small-btn primary" id="newQuizBtn">
+                            <i class="fas fa-plus"></i> New Quiz
+                        </button>
+                    </div>
+                    <p class="builder-help">Admin can fully manage title, questions, options, and correct answers.</p>
+
+                    <div class="form-group" style="margin-top:14px;">
+                        <label>Select Existing Quiz (optional)</label>
+                        <select id="builderQuizSelect">
+                            <option value="">-- Create New Quiz --</option>
+                        </select>
+                    </div>
+
+                    <div class="builder-shell">
+                        <div class="builder-card">
+                            <h4>Quiz Details</h4>
+                            <div class="form-group">
+                                <label>Quiz Title</label>
+                                <input type="text" id="builderTitle" placeholder="e.g. Math Foundations" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="builderDescription" rows="3" placeholder="Short quiz description"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Source Document Name (optional)</label>
+                                <input type="text" id="builderDocumentName" placeholder="e.g. algebra-intro.pdf">
+                            </div>
+                            <div class="form-group">
+                                <label style="display:flex;align-items:center;gap:8px;">
+                                    <input type="checkbox" id="builderActive" checked style="width:auto;">
+                                    Quiz Active
+                                </label>
+                            </div>
+
+                            <h4 style="margin-top:16px;">Questions</h4>
+                            <div class="question-list-compact" id="builderQuestionList"></div>
+                            <div class="builder-actions">
+                                <button type="button" class="small-btn" id="addQuestionBtn">Add Question</button>
+                                <button type="button" class="small-btn" id="duplicateQuestionBtn">Duplicate</button>
+                                <button type="button" class="small-btn" id="moveQuestionUpBtn">Move Up</button>
+                                <button type="button" class="small-btn" id="moveQuestionDownBtn">Move Down</button>
+                                <button type="button" class="small-btn danger" id="deleteQuestionBtn">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="builder-card">
+                            <h4>Question Editor</h4>
+                            <div class="form-group">
+                                <label>Question</label>
+                                <textarea id="builderQuestionText" rows="3" placeholder="Enter question text"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Options</label>
+                                <div id="builderOptionRows"></div>
+                                <button type="button" class="small-btn" id="addOptionBtn">Add Option</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Correct Answer</label>
+                                <select id="builderCorrectAnswer"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Explanation (optional)</label>
+                                <textarea id="builderExplanation" rows="3" placeholder="Why this answer is correct"></textarea>
+                            </div>
+                            <div class="builder-actions">
+                                <button type="button" class="small-btn" id="applyQuestionBtn">Apply Question Changes</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="builder-actions" style="margin-top:16px;">
+                        <button type="button" class="small-btn" id="resetBuilderBtn">Reset</button>
+                        <button type="button" class="small-btn primary" id="saveBuilderBtn">Save Quiz</button>
+                    </div>
+                </div>
+
                 <!-- Manage Quizzes Tab -->
                 <div class="tab-content" id="manage-tab">
                     <h3>All Quizzes</h3>
@@ -547,6 +778,227 @@
             return localStorage.getItem('access_token') || localStorage.getItem('accessToken');
         }
 
+        let quizzesCache = [];
+        let quizBuilderState = {
+            quizId: null,
+            questions: [],
+            selectedQuestionIndex: -1
+        };
+
+        function createDefaultQuestion() {
+            return {
+                question: 'New question',
+                options: ['Option 1', 'Option 2'],
+                correct_answer: 'Option 1',
+                explanation: ''
+            };
+        }
+
+        function resetQuizBuilderForm() {
+            quizBuilderState = {
+                quizId: null,
+                questions: [createDefaultQuestion()],
+                selectedQuestionIndex: 0
+            };
+
+            document.getElementById('builderQuizSelect').value = '';
+            document.getElementById('builderTitle').value = '';
+            document.getElementById('builderDescription').value = '';
+            document.getElementById('builderDocumentName').value = '';
+            document.getElementById('builderActive').checked = true;
+
+            renderBuilderQuestionList();
+            renderBuilderQuestionEditor();
+        }
+
+        function renderBuilderQuizSelect() {
+            const select = document.getElementById('builderQuizSelect');
+            if (!select) return;
+
+            const current = String(select.value || '');
+            select.innerHTML = '<option value="">-- Create New Quiz --</option>';
+
+            quizzesCache.forEach((quiz) => {
+                const option = document.createElement('option');
+                option.value = String(quiz.id);
+                option.textContent = `${quiz.title} (${quiz.questions?.length || 0} questions)`;
+                select.appendChild(option);
+            });
+
+            if (current && quizzesCache.some((q) => String(q.id) === current)) {
+                select.value = current;
+            }
+        }
+
+        function loadQuizIntoBuilder(quizId) {
+            const quiz = quizzesCache.find((q) => String(q.id) === String(quizId));
+            if (!quiz) {
+                resetQuizBuilderForm();
+                return;
+            }
+
+            quizBuilderState.quizId = quiz.id;
+            quizBuilderState.questions = JSON.parse(JSON.stringify(quiz.questions || []));
+            if (!quizBuilderState.questions.length) {
+                quizBuilderState.questions = [createDefaultQuestion()];
+            }
+            quizBuilderState.selectedQuestionIndex = 0;
+
+            document.getElementById('builderTitle').value = quiz.title || '';
+            document.getElementById('builderDescription').value = quiz.description || '';
+            document.getElementById('builderDocumentName').value = quiz.document_name || '';
+            document.getElementById('builderActive').checked = !!quiz.is_active;
+
+            renderBuilderQuestionList();
+            renderBuilderQuestionEditor();
+        }
+
+        function renderBuilderQuestionList() {
+            const container = document.getElementById('builderQuestionList');
+            if (!container) return;
+
+            container.innerHTML = '';
+            quizBuilderState.questions.forEach((question, index) => {
+                const row = document.createElement('div');
+                row.className = `question-row-compact ${index === quizBuilderState.selectedQuestionIndex ? 'active' : ''}`;
+
+                const title = document.createElement('div');
+                title.className = 'question-row-compact-title';
+                title.textContent = question.question || `Question ${index + 1}`;
+
+                const meta = document.createElement('div');
+                meta.className = 'question-row-compact-meta';
+                meta.textContent = `${question.options?.length || 0} options`;
+
+                row.appendChild(title);
+                row.appendChild(meta);
+                row.addEventListener('click', () => {
+                    applyBuilderQuestionChanges();
+                    quizBuilderState.selectedQuestionIndex = index;
+                    renderBuilderQuestionList();
+                    renderBuilderQuestionEditor();
+                });
+
+                container.appendChild(row);
+            });
+        }
+
+        function updateCorrectAnswerSelect(optionValues, preferred) {
+            const select = document.getElementById('builderCorrectAnswer');
+            select.innerHTML = '';
+
+            optionValues.forEach((value) => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+
+            if (preferred && optionValues.includes(preferred)) {
+                select.value = preferred;
+            } else if (optionValues.length > 0) {
+                select.value = optionValues[0];
+            }
+        }
+
+        function createBuilderOptionRow(value = '') {
+            const row = document.createElement('div');
+            row.className = 'option-row-builder';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'builder-option-input';
+            input.placeholder = 'Option text';
+            input.value = value;
+            input.addEventListener('input', syncCorrectAnswerOptionsFromRows);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'small-btn danger';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (!document.querySelector('#builderOptionRows .option-row-builder')) {
+                    document.getElementById('builderOptionRows').appendChild(createBuilderOptionRow(''));
+                }
+                syncCorrectAnswerOptionsFromRows();
+            });
+
+            row.appendChild(input);
+            row.appendChild(removeBtn);
+            return row;
+        }
+
+        function syncCorrectAnswerOptionsFromRows() {
+            const optionValues = Array.from(document.querySelectorAll('.builder-option-input'))
+                .map((el) => (el.value || '').trim())
+                .filter(Boolean);
+            const current = document.getElementById('builderCorrectAnswer').value;
+            updateCorrectAnswerSelect(optionValues, current);
+        }
+
+        function renderBuilderQuestionEditor() {
+            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
+            if (!question) {
+                document.getElementById('builderQuestionText').value = '';
+                document.getElementById('builderExplanation').value = '';
+                document.getElementById('builderOptionRows').innerHTML = '';
+                updateCorrectAnswerSelect([], '');
+                return;
+            }
+
+            document.getElementById('builderQuestionText').value = question.question || '';
+            document.getElementById('builderExplanation').value = question.explanation || '';
+
+            const optionRows = document.getElementById('builderOptionRows');
+            optionRows.innerHTML = '';
+            const options = Array.isArray(question.options) && question.options.length ? question.options : [''];
+            options.forEach((opt) => optionRows.appendChild(createBuilderOptionRow(opt)));
+
+            syncCorrectAnswerOptionsFromRows();
+            const correct = question.correct_answer || '';
+            if (correct) {
+                const select = document.getElementById('builderCorrectAnswer');
+                if (Array.from(select.options).some((o) => o.value === correct)) {
+                    select.value = correct;
+                }
+            }
+        }
+
+        function applyBuilderQuestionChanges() {
+            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
+            if (!question) return true;
+
+            const questionText = (document.getElementById('builderQuestionText').value || '').trim();
+            const explanation = (document.getElementById('builderExplanation').value || '').trim();
+            const options = Array.from(document.querySelectorAll('.builder-option-input'))
+                .map((el) => (el.value || '').trim())
+                .filter(Boolean);
+            const uniqueOptions = [...new Set(options)];
+            const correctAnswer = (document.getElementById('builderCorrectAnswer').value || '').trim();
+
+            if (!questionText) {
+                showWarning('Question text is required');
+                return false;
+            }
+            if (uniqueOptions.length < 2) {
+                showWarning('Each question needs at least 2 options');
+                return false;
+            }
+            if (!correctAnswer || !uniqueOptions.includes(correctAnswer)) {
+                showWarning('Please select a valid correct answer');
+                return false;
+            }
+
+            question.question = questionText;
+            question.options = uniqueOptions;
+            question.correct_answer = correctAnswer;
+            question.explanation = explanation;
+
+            renderBuilderQuestionList();
+            return true;
+        }
+
         // Run after deferred scripts are loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', verifyAdminAccess);
@@ -581,8 +1033,10 @@
                     loadUploadedFiles();
                 } else if (button.getAttribute('data-tab') === 'generate') {
                     loadDocuments();
+                } else if (button.getAttribute('data-tab') === 'builder') {
+                    loadQuizzes(true);
                 } else if (button.getAttribute('data-tab') === 'manage') {
-                    loadQuizzes();
+                    loadQuizzes(true);
                 }
             });
         });
@@ -802,10 +1256,11 @@
         });
 
         // Load quizzes
-        async function loadQuizzes() {
+        async function loadQuizzes(includeAll = false) {
             try {
                 const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes`, {
+                const query = includeAll ? '?include_all=1' : '';
+                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes${query}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -814,7 +1269,9 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    displayQuizzes(data.quizzes);
+                    quizzesCache = data.quizzes || [];
+                    displayQuizzes(quizzesCache);
+                    renderBuilderQuizSelect();
                 } else {
                     showError('Failed to load quizzes');
                 }
@@ -843,9 +1300,17 @@
                                 <i class="fas fa-file"></i> ${quiz.document_name || 'N/A'}
                             </div>
                         </div>
-                        <button class="delete-quiz-btn" onclick="deleteQuiz(${quiz.id})" title="Delete Quiz">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </button>
+                        <div class="quiz-actions">
+                            <button class="edit-quiz-btn" onclick="openQuizBuilderEdit(${quiz.id})" title="Edit Quiz">
+                                <i class="fas fa-pen"></i> Edit
+                            </button>
+                            <button class="toggle-quiz-btn" onclick="toggleQuizStatus(${quiz.id})" title="Toggle Status">
+                                ${quiz.is_active ? '<i class="fas fa-eye-slash"></i> Deactivate' : '<i class="fas fa-eye"></i> Activate'}
+                            </button>
+                            <button class="delete-quiz-btn" onclick="deleteQuiz(${quiz.id})" title="Delete Quiz">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
                     </div>
                     <div class="quiz-stats">
                         <div class="quiz-stat">
@@ -862,6 +1327,103 @@
             `).join('');
         }
 
+        function openQuizBuilderEdit(quizId) {
+            const tabBtn = document.querySelector('[data-tab="builder"]');
+            if (tabBtn) tabBtn.click();
+
+            const select = document.getElementById('builderQuizSelect');
+            if (select) {
+                select.value = String(quizId);
+            }
+            loadQuizIntoBuilder(quizId);
+        }
+
+        async function toggleQuizStatus(quizId) {
+            const quiz = quizzesCache.find((q) => q.id === quizId);
+            if (!quiz) return;
+
+            try {
+                const token = getAccessToken();
+                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes/${quizId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_active: !quiz.is_active
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showSuccess(data.message || 'Quiz status updated');
+                    loadQuizzes(true);
+                } else {
+                    showError(data.message || 'Failed to update status');
+                }
+            } catch (error) {
+                showError('Failed to update status');
+            }
+        }
+
+        async function saveQuizFromBuilder() {
+            if (!applyBuilderQuestionChanges()) return;
+
+            const title = (document.getElementById('builderTitle').value || '').trim();
+            const description = (document.getElementById('builderDescription').value || '').trim();
+            const documentName = (document.getElementById('builderDocumentName').value || '').trim();
+            const isActive = document.getElementById('builderActive').checked;
+
+            if (!title) {
+                showWarning('Quiz title is required');
+                return;
+            }
+
+            const payload = {
+                title: title,
+                description: description,
+                document_name: documentName,
+                is_active: isActive,
+                questions: quizBuilderState.questions
+            };
+
+            const isEditing = !!quizBuilderState.quizId;
+            const endpoint = isEditing
+                ? `${window.API_BASE_URL}/quiz/quizzes/${quizBuilderState.quizId}`
+                : `${window.API_BASE_URL}/quiz/quizzes`;
+            const method = isEditing ? 'PUT' : 'POST';
+
+            try {
+                const token = getAccessToken();
+                const response = await fetch(endpoint, {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(data.message || (isEditing ? 'Quiz updated' : 'Quiz created'));
+                    await loadQuizzes(true);
+                    if (data.quiz && data.quiz.id) {
+                        quizBuilderState.quizId = data.quiz.id;
+                        const select = document.getElementById('builderQuizSelect');
+                        if (select) {
+                            select.value = String(data.quiz.id);
+                        }
+                        loadQuizIntoBuilder(data.quiz.id);
+                    }
+                } else {
+                    showError(data.message || 'Failed to save quiz');
+                }
+            } catch (error) {
+                showError('Failed to save quiz');
+            }
+        }
+
         // Delete a quiz
         async function deleteQuiz(quizId) {
             if (!confirm('Are you sure you want to delete this quiz? This cannot be undone.')) return;
@@ -876,11 +1438,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     showSuccess(data.message || 'Quiz deleted successfully');
-                    const card = document.getElementById(`quiz-card-${quizId}`);
-                    if (card) card.remove();
-                    if (!document.querySelector('.quiz-card')) {
-                        document.getElementById('quizList').innerHTML = '<p style="color: #718096;">No quizzes available. Generate one from the "Generate Quiz" tab.</p>';
-                    }
+                    await loadQuizzes(true);
                 } else {
                     showError(data.message || 'Failed to delete quiz');
                 }
@@ -890,7 +1448,81 @@
             }
         }
 
+        function addBuilderQuestion() {
+            if (!applyBuilderQuestionChanges()) return;
+            quizBuilderState.questions.push(createDefaultQuestion());
+            quizBuilderState.selectedQuestionIndex = quizBuilderState.questions.length - 1;
+            renderBuilderQuestionList();
+            renderBuilderQuestionEditor();
+        }
+
+        function duplicateBuilderQuestion() {
+            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
+            if (!question) return;
+            if (!applyBuilderQuestionChanges()) return;
+
+            const copy = JSON.parse(JSON.stringify(question));
+            quizBuilderState.questions.splice(quizBuilderState.selectedQuestionIndex + 1, 0, copy);
+            quizBuilderState.selectedQuestionIndex += 1;
+            renderBuilderQuestionList();
+            renderBuilderQuestionEditor();
+        }
+
+        function moveBuilderQuestion(direction) {
+            if (!applyBuilderQuestionChanges()) return;
+            const from = quizBuilderState.selectedQuestionIndex;
+            const to = from + direction;
+            if (from < 0 || to < 0 || to >= quizBuilderState.questions.length) return;
+
+            const tmp = quizBuilderState.questions[from];
+            quizBuilderState.questions[from] = quizBuilderState.questions[to];
+            quizBuilderState.questions[to] = tmp;
+            quizBuilderState.selectedQuestionIndex = to;
+            renderBuilderQuestionList();
+        }
+
+        function deleteBuilderQuestion() {
+            if (quizBuilderState.selectedQuestionIndex < 0) return;
+            if (quizBuilderState.questions.length <= 1) {
+                showWarning('At least one question is required');
+                return;
+            }
+
+            quizBuilderState.questions.splice(quizBuilderState.selectedQuestionIndex, 1);
+            quizBuilderState.selectedQuestionIndex = Math.max(0, quizBuilderState.selectedQuestionIndex - 1);
+            renderBuilderQuestionList();
+            renderBuilderQuestionEditor();
+        }
+
+        function bindQuizBuilderEvents() {
+            const builderSelect = document.getElementById('builderQuizSelect');
+            builderSelect.addEventListener('change', () => {
+                const selectedId = builderSelect.value;
+                if (!selectedId) {
+                    resetQuizBuilderForm();
+                    return;
+                }
+                loadQuizIntoBuilder(selectedId);
+            });
+
+            document.getElementById('newQuizBtn').addEventListener('click', resetQuizBuilderForm);
+            document.getElementById('addQuestionBtn').addEventListener('click', addBuilderQuestion);
+            document.getElementById('duplicateQuestionBtn').addEventListener('click', duplicateBuilderQuestion);
+            document.getElementById('moveQuestionUpBtn').addEventListener('click', () => moveBuilderQuestion(-1));
+            document.getElementById('moveQuestionDownBtn').addEventListener('click', () => moveBuilderQuestion(1));
+            document.getElementById('deleteQuestionBtn').addEventListener('click', deleteBuilderQuestion);
+            document.getElementById('applyQuestionBtn').addEventListener('click', applyBuilderQuestionChanges);
+            document.getElementById('addOptionBtn').addEventListener('click', () => {
+                document.getElementById('builderOptionRows').appendChild(createBuilderOptionRow(''));
+                syncCorrectAnswerOptionsFromRows();
+            });
+            document.getElementById('saveBuilderBtn').addEventListener('click', saveQuizFromBuilder);
+            document.getElementById('resetBuilderBtn').addEventListener('click', resetQuizBuilderForm);
+        }
+
         // Load initial data
+        bindQuizBuilderEvents();
+        resetQuizBuilderForm();
         loadUploadedFiles();
 
         // Mobile menu functionality

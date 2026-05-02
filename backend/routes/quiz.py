@@ -26,6 +26,68 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def _get_current_user():
+    user_id = get_user_id()
+    return User.query.get(user_id)
+
+
+def _admin_required():
+    user = _get_current_user()
+    if not user or not user.is_admin:
+        return None, (jsonify({"message": "Admin access required"}), 403)
+    return user, None
+
+
+def _normalize_quiz_questions(raw_questions):
+    if not isinstance(raw_questions, list) or len(raw_questions) == 0:
+        raise ValueError("questions must be a non-empty list")
+
+    normalized_questions = []
+    for idx, item in enumerate(raw_questions, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"Question #{idx} must be an object")
+
+        question_text = str(item.get("question", "")).strip()
+        if not question_text:
+            raise ValueError(f"Question #{idx} text is required")
+
+        raw_options = item.get("options")
+        if not isinstance(raw_options, list):
+            raise ValueError(f"Question #{idx} options must be a list")
+
+        cleaned_options = []
+        for opt in raw_options:
+            text = str(opt).strip()
+            if text:
+                cleaned_options.append(text)
+
+        if len(cleaned_options) < 2:
+            raise ValueError(f"Question #{idx} must have at least 2 options")
+
+        # Preserve order while removing duplicates.
+        unique_options = list(dict.fromkeys(cleaned_options))
+        if len(unique_options) < 2:
+            raise ValueError(f"Question #{idx} must have at least 2 unique options")
+
+        provided_correct = str(item.get("correct_answer", "")).strip()
+        if not provided_correct:
+            raise ValueError(f"Question #{idx} correct answer is required")
+        if provided_correct not in unique_options:
+            raise ValueError(f"Question #{idx} correct answer must match one of its options")
+
+        explanation = str(item.get("explanation", "")).strip()
+
+        normalized_question = {
+            "question": question_text,
+            "options": unique_options,
+            "correct_answer": provided_correct,
+            "explanation": explanation,
+        }
+        normalized_questions.append(normalized_question)
+
+    return normalized_questions
+
+
 # ==================== UPLOAD DOCUMENT ====================
 @quiz_bp.route("/upload-document", methods=["POST"])
 @jwt_required()
@@ -237,12 +299,62 @@ Return ONLY the JSON, no additional text."""
 def get_quizzes():
     """Get all active quizzes"""
     try:
-        quizzes = Quiz.query.filter_by(is_active=True).order_by(Quiz.created_at.desc()).all()
+        include_all = (request.args.get("include_all", "0") or "0").strip().lower() in ("1", "true", "yes")
+        current_user = _get_current_user()
+
+        if include_all and current_user and current_user.is_admin:
+            quizzes = Quiz.query.order_by(Quiz.created_at.desc()).all()
+        else:
+            quizzes = Quiz.query.filter_by(is_active=True).order_by(Quiz.created_at.desc()).all()
+
         return jsonify({
             "quizzes": [quiz.to_dict() for quiz in quizzes]
         }), 200
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
+
+
+# ==================== CREATE QUIZ MANUALLY (ADMIN) ====================
+@quiz_bp.route("/quizzes", methods=["POST"])
+@jwt_required()
+def create_quiz_manually():
+    """Create a quiz with full admin-provided questions/options"""
+    try:
+        user, admin_error = _admin_required()
+        if admin_error:
+            return admin_error
+
+        payload = request.get_json(silent=True) or {}
+        title = str(payload.get("title", "")).strip()
+        description = str(payload.get("description", "")).strip()
+        document_name = str(payload.get("document_name", "")).strip() or None
+        is_active = bool(payload.get("is_active", True))
+        questions = _normalize_quiz_questions(payload.get("questions"))
+
+        if not title:
+            return jsonify({"message": "title is required"}), 400
+
+        quiz = Quiz(
+            title=title,
+            description=description,
+            document_name=document_name,
+            questions=questions,
+            created_by=user.id,
+            is_active=is_active,
+        )
+
+        db.session.add(quiz)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Quiz created successfully",
+            "quiz": quiz.to_dict(),
+        }), 201
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error creating quiz: {str(e)}"}), 500
 
 
 # ==================== GET QUIZ BY ID ====================
@@ -259,6 +371,53 @@ def get_quiz(quiz_id):
         return jsonify({"quiz": quiz.to_dict()}), 200
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
+
+
+# ==================== UPDATE QUIZ (ADMIN) ====================
+@quiz_bp.route("/quizzes/<int:quiz_id>", methods=["PUT"])
+@jwt_required()
+def update_quiz(quiz_id):
+    """Update quiz title/description/status/questions (admin only)"""
+    try:
+        _, admin_error = _admin_required()
+        if admin_error:
+            return admin_error
+
+        quiz = Quiz.query.get(quiz_id)
+        if not quiz:
+            return jsonify({"message": "Quiz not found"}), 404
+
+        payload = request.get_json(silent=True) or {}
+
+        if "title" in payload:
+            title = str(payload.get("title", "")).strip()
+            if not title:
+                return jsonify({"message": "title cannot be empty"}), 400
+            quiz.title = title
+
+        if "description" in payload:
+            quiz.description = str(payload.get("description", "")).strip()
+
+        if "document_name" in payload:
+            document_name = str(payload.get("document_name", "")).strip()
+            quiz.document_name = document_name or None
+
+        if "is_active" in payload:
+            quiz.is_active = bool(payload.get("is_active"))
+
+        if "questions" in payload:
+            quiz.questions = _normalize_quiz_questions(payload.get("questions"))
+
+        db.session.commit()
+        return jsonify({
+            "message": "Quiz updated successfully",
+            "quiz": quiz.to_dict(),
+        }), 200
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error updating quiz: {str(e)}"}), 500
 
 
 # ==================== DELETE QUIZ ====================
