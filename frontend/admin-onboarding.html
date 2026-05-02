@@ -161,8 +161,10 @@
                         <label for="qRetryPromptInput">Retry Prompt (optional)</label>
                         <textarea id="qRetryPromptInput" rows="2" placeholder="Shown when answer is unclear"></textarea>
 
-                        <label for="qOptionsInput">Options (for select questions)</label>
-                        <textarea id="qOptionsInput" rows="5" placeholder="One option per line: value | label | synonym1,synonym2"></textarea>
+                        <label>Options (for select questions)</label>
+                        <div id="optionRows" class="option-rows"></div>
+                        <button type="button" class="btn-secondary btn-small" id="addOptionBtn">Add Option</button>
+                        <small class="field-hint">Just type option names. Internal codes are handled automatically.</small>
 
                         <div class="condition-box">
                             <h4>Show Question Only If (optional)</h4>

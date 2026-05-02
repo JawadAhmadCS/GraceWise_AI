@@ -105,6 +105,34 @@ textarea {
     resize: vertical;
 }
 
+.btn-small {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.option-rows {
+    display: grid;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.option-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.option-row .remove-option-btn {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: #f3e4df;
+    color: #8b2a1f;
+    cursor: pointer;
+    font-weight: 600;
+}
+
 .section-title-list {
     display: grid;
     gap: 10px;

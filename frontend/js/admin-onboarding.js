@@ -36,7 +36,8 @@ function setBusy(isBusy) {
         "moveUpBtn",
         "moveDownBtn",
         "deleteQuestionBtn",
-        "applyQuestionBtn"
+        "applyQuestionBtn",
+        "addOptionBtn"
     ].forEach((id) => {
         const btn = document.getElementById(id);
         if (btn) btn.disabled = isBusy;
@@ -260,6 +261,10 @@ function stringifyPrimitive(value) {
     return String(value);
 }
 
+function isSelectType(type) {
+    return type === "single_select" || type === "multi_select";
+}
+
 function renderCondition(question) {
     const cond = question.condition;
     const modeInput = document.getElementById("condModeInput");
@@ -291,23 +296,89 @@ function renderCondition(question) {
     }
 }
 
-function renderOptions(question) {
-    const textarea = document.getElementById("qOptionsInput");
-    const options = Array.isArray(question.options) ? question.options : [];
+function createOptionRow(initialLabel = "", initialValue = "") {
+    const row = document.createElement("div");
+    row.className = "option-row";
 
-    const lines = options.map((opt) => {
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "option-label-input";
+    labelInput.placeholder = "Option name (e.g. Morning)";
+    labelInput.value = initialLabel;
+
+    const valueInput = document.createElement("input");
+    valueInput.type = "hidden";
+    valueInput.className = "option-value-input";
+    valueInput.value = initialValue;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "remove-option-btn";
+    removeBtn.textContent = "Remove";
+    removeBtn.addEventListener("click", () => {
+        row.remove();
+    });
+
+    row.appendChild(labelInput);
+    row.appendChild(removeBtn);
+    row.appendChild(valueInput);
+    return row;
+}
+
+function setOptionsEditorState(enabled) {
+    const container = document.getElementById("optionRows");
+    const addBtn = document.getElementById("addOptionBtn");
+    container.style.opacity = enabled ? "1" : "0.6";
+    addBtn.disabled = !enabled;
+
+    Array.from(container.querySelectorAll("input,button")).forEach((el) => {
+        el.disabled = !enabled;
+    });
+}
+
+function renderOptions(question) {
+    const container = document.getElementById("optionRows");
+    container.innerHTML = "";
+
+    const options = Array.isArray(question.options) ? question.options : [];
+    options.forEach((opt) => {
         if (opt && typeof opt === "object" && !Array.isArray(opt)) {
             const value = String(opt.value || "").trim();
             const label = String(opt.label || value).trim();
-            const synonyms = Array.isArray(opt.synonyms) ? opt.synonyms.filter(Boolean).join(",") : "";
-            if (synonyms) return `${value} | ${label} | ${synonyms}`;
-            return `${value} | ${label}`;
+            container.appendChild(createOptionRow(label, value));
+            return;
         }
         const val = String(opt || "").trim();
-        return val ? `${val} | ${val}` : "";
-    }).filter(Boolean);
+        if (val) container.appendChild(createOptionRow(val, ""));
+    });
 
-    textarea.value = lines.join("\n");
+    if (!container.children.length) {
+        container.appendChild(createOptionRow("", ""));
+    }
+}
+
+function parseOptionsFromRows() {
+    const container = document.getElementById("optionRows");
+    const rows = Array.from(container.querySelectorAll(".option-row"));
+    const parsed = [];
+    const usedValues = new Set();
+
+    for (const row of rows) {
+        const labelInput = row.querySelector(".option-label-input");
+        const valueInput = row.querySelector(".option-value-input");
+        const label = String(labelInput?.value || "").trim();
+        const existingValue = String(valueInput?.value || "").trim();
+        if (!label) continue;
+
+        const candidateBase = existingValue || slugifyValue(label, "option");
+        const value = makeUniqueValue(candidateBase, usedValues);
+        usedValues.add(value);
+        if (valueInput) valueInput.value = value;
+
+        parsed.push({ value, label });
+    }
+
+    return parsed;
 }
 
 function renderQuestionEditor() {
@@ -317,16 +388,16 @@ function renderQuestionEditor() {
         [
             "qPromptInput",
             "qRetryPromptInput",
-            "qOptionsInput",
             "condFieldInput",
             "condValueInput"
         ].forEach((id) => {
             document.getElementById(id).value = "";
         });
+        document.getElementById("optionRows").innerHTML = "";
         document.getElementById("qRequiredInput").checked = false;
         document.getElementById("qTypeInput").value = "text";
         document.getElementById("condModeInput").value = "none";
-        document.getElementById("qOptionsInput").disabled = true;
+        setOptionsEditorState(false);
         return;
     }
 
@@ -338,7 +409,7 @@ function renderQuestionEditor() {
 
     renderOptions(q);
     renderCondition(q);
-    document.getElementById("qOptionsInput").disabled = !(q.type === "single_select" || q.type === "multi_select");
+    setOptionsEditorState(isSelectType(q.type));
 }
 
 function parsePrimitive(raw) {
@@ -348,33 +419,6 @@ function parsePrimitive(raw) {
     if (value.toLowerCase() === "false") return false;
     if (/^-?\d+$/.test(value)) return Number(value);
     return value;
-}
-
-function parseOptions(text) {
-    const lines = String(text || "")
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
-
-    const parsed = [];
-    for (const line of lines) {
-        const parts = line.split("|").map((part) => part.trim());
-        const value = parts[0] || "";
-        const label = parts[1] || value;
-        const synonymsText = parts[2] || "";
-        const synonyms = synonymsText
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-
-        if (!value) continue;
-
-        const opt = { value, label };
-        if (synonyms.length) opt.synonyms = synonyms;
-        parsed.push(opt);
-    }
-
-    return parsed;
 }
 
 function buildConditionFromEditor() {
@@ -426,7 +470,6 @@ function applyQuestionFromEditor() {
         const required = document.getElementById("qRequiredInput").checked;
         const prompt = document.getElementById("qPromptInput").value.trim();
         const retryPrompt = document.getElementById("qRetryPromptInput").value.trim();
-        const optionText = document.getElementById("qOptionsInput").value;
 
         if (!section) throw new Error("Section is required.");
         if (!prompt) throw new Error("Question prompt is required.");
@@ -440,8 +483,8 @@ function applyQuestionFromEditor() {
         if (retryPrompt) updated.retry_prompt = retryPrompt;
         else delete updated.retry_prompt;
 
-        if (type === "single_select" || type === "multi_select") {
-            const options = parseOptions(optionText);
+        if (isSelectType(type)) {
+            const options = parseOptionsFromRows();
             if (!options.length) throw new Error("Select questions need at least one option.");
             updated.options = options;
         } else {
@@ -654,8 +697,19 @@ function bindEvents() {
     document.getElementById("questionSearch").addEventListener("input", renderQuestionList);
     document.getElementById("qTypeInput").addEventListener("change", () => {
         const type = document.getElementById("qTypeInput").value;
-        const optionsInput = document.getElementById("qOptionsInput");
-        optionsInput.disabled = !(type === "single_select" || type === "multi_select");
+        const enabled = isSelectType(type);
+        setOptionsEditorState(enabled);
+        if (enabled) {
+            const container = document.getElementById("optionRows");
+            if (!container.children.length) {
+                container.appendChild(createOptionRow("", ""));
+            }
+        }
+    });
+
+    document.getElementById("addOptionBtn").addEventListener("click", () => {
+        const container = document.getElementById("optionRows");
+        container.appendChild(createOptionRow("", ""));
     });
 
     document.getElementById("reloadBtn").addEventListener("click", async () => {
