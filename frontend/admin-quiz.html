@@ -668,7 +668,7 @@
                             <i class="fas fa-plus"></i> New Quiz
                         </button>
                     </div>
-                    <p class="builder-help">Admin can fully manage title, questions, options, and correct answers.</p>
+                    <p class="builder-help">Simple setup: quiz title likhein, phir questions aur options add karein.</p>
 
                     <div class="form-group" style="margin-top:14px;">
                         <label>Select Existing Quiz (optional)</label>
@@ -688,24 +688,13 @@
                                 <label>Description</label>
                                 <textarea id="builderDescription" rows="3" placeholder="Short quiz description"></textarea>
                             </div>
-                            <div class="form-group">
-                                <label>Source Document Name (optional)</label>
-                                <input type="text" id="builderDocumentName" placeholder="e.g. algebra-intro.pdf">
-                            </div>
-                            <div class="form-group">
-                                <label style="display:flex;align-items:center;gap:8px;">
-                                    <input type="checkbox" id="builderActive" checked style="width:auto;">
-                                    Quiz Active
-                                </label>
-                            </div>
+                            <input type="hidden" id="builderDocumentName" value="">
+                            <input type="checkbox" id="builderActive" checked style="display:none;">
 
                             <h4 style="margin-top:16px;">Questions</h4>
                             <div class="question-list-compact" id="builderQuestionList"></div>
                             <div class="builder-actions">
                                 <button type="button" class="small-btn" id="addQuestionBtn">Add Question</button>
-                                <button type="button" class="small-btn" id="duplicateQuestionBtn">Duplicate</button>
-                                <button type="button" class="small-btn" id="moveQuestionUpBtn">Move Up</button>
-                                <button type="button" class="small-btn" id="moveQuestionDownBtn">Move Down</button>
                                 <button type="button" class="small-btn danger" id="deleteQuestionBtn">Delete</button>
                             </div>
                         </div>
@@ -722,15 +711,8 @@
                                 <button type="button" class="small-btn" id="addOptionBtn">Add Option</button>
                             </div>
                             <div class="form-group">
-                                <label>Correct Answer</label>
+                                <label>Correct Option</label>
                                 <select id="builderCorrectAnswer"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Explanation (optional)</label>
-                                <textarea id="builderExplanation" rows="3" placeholder="Why this answer is correct"></textarea>
-                            </div>
-                            <div class="builder-actions">
-                                <button type="button" class="small-btn" id="applyQuestionBtn">Apply Question Changes</button>
                             </div>
                         </div>
                     </div>
@@ -941,14 +923,12 @@
             const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
             if (!question) {
                 document.getElementById('builderQuestionText').value = '';
-                document.getElementById('builderExplanation').value = '';
                 document.getElementById('builderOptionRows').innerHTML = '';
                 updateCorrectAnswerSelect([], '');
                 return;
             }
 
             document.getElementById('builderQuestionText').value = question.question || '';
-            document.getElementById('builderExplanation').value = question.explanation || '';
 
             const optionRows = document.getElementById('builderOptionRows');
             optionRows.innerHTML = '';
@@ -970,7 +950,6 @@
             if (!question) return true;
 
             const questionText = (document.getElementById('builderQuestionText').value || '').trim();
-            const explanation = (document.getElementById('builderExplanation').value || '').trim();
             const options = Array.from(document.querySelectorAll('.builder-option-input'))
                 .map((el) => (el.value || '').trim())
                 .filter(Boolean);
@@ -993,7 +972,7 @@
             question.question = questionText;
             question.options = uniqueOptions;
             question.correct_answer = correctAnswer;
-            question.explanation = explanation;
+            question.explanation = question.explanation || '';
 
             renderBuilderQuestionList();
             return true;
@@ -1505,19 +1484,22 @@
                 loadQuizIntoBuilder(selectedId);
             });
 
-            document.getElementById('newQuizBtn').addEventListener('click', resetQuizBuilderForm);
-            document.getElementById('addQuestionBtn').addEventListener('click', addBuilderQuestion);
-            document.getElementById('duplicateQuestionBtn').addEventListener('click', duplicateBuilderQuestion);
-            document.getElementById('moveQuestionUpBtn').addEventListener('click', () => moveBuilderQuestion(-1));
-            document.getElementById('moveQuestionDownBtn').addEventListener('click', () => moveBuilderQuestion(1));
-            document.getElementById('deleteQuestionBtn').addEventListener('click', deleteBuilderQuestion);
-            document.getElementById('applyQuestionBtn').addEventListener('click', applyBuilderQuestionChanges);
-            document.getElementById('addOptionBtn').addEventListener('click', () => {
+            const newQuizBtn = document.getElementById('newQuizBtn');
+            const addQuestionBtn = document.getElementById('addQuestionBtn');
+            const deleteQuestionBtn = document.getElementById('deleteQuestionBtn');
+            const addOptionBtn = document.getElementById('addOptionBtn');
+            const saveBuilderBtn = document.getElementById('saveBuilderBtn');
+            const resetBuilderBtn = document.getElementById('resetBuilderBtn');
+
+            if (newQuizBtn) newQuizBtn.addEventListener('click', resetQuizBuilderForm);
+            if (addQuestionBtn) addQuestionBtn.addEventListener('click', addBuilderQuestion);
+            if (deleteQuestionBtn) deleteQuestionBtn.addEventListener('click', deleteBuilderQuestion);
+            if (addOptionBtn) addOptionBtn.addEventListener('click', () => {
                 document.getElementById('builderOptionRows').appendChild(createBuilderOptionRow(''));
                 syncCorrectAnswerOptionsFromRows();
             });
-            document.getElementById('saveBuilderBtn').addEventListener('click', saveQuizFromBuilder);
-            document.getElementById('resetBuilderBtn').addEventListener('click', resetQuizBuilderForm);
+            if (saveBuilderBtn) saveBuilderBtn.addEventListener('click', saveQuizFromBuilder);
+            if (resetBuilderBtn) resetBuilderBtn.addEventListener('click', resetQuizBuilderForm);
         }
 
         // Load initial data
