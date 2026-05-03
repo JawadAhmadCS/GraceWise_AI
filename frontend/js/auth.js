@@ -211,7 +211,6 @@ class AuthSystem {
             'child-profile.html',
             'curriculum.html',
             'planner.html',
-            'quiz.html',
             'ai-assistant.html',
             'devotional.html',
             'progress.html',
@@ -286,3 +285,4 @@ const auth = new AuthSystem();
 document.addEventListener('DOMContentLoaded', function () {
     auth.checkAccess();
 });
+
