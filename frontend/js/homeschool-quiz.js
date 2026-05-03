@@ -11,16 +11,50 @@
     let quizData = null;
     let submissionToken = null;
 
-    function getSignedInUserEmail() {
+    function getStoredAccessToken() {
+        return localStorage.getItem("access_token") || localStorage.getItem("accessToken") || "";
+    }
+
+    async function getSignedInUserEmail() {
+        const token = getStoredAccessToken();
+        if (!token) return "";
+
         try {
-            const token = localStorage.getItem("access_token");
             const rawUser = localStorage.getItem("currentUser");
-            if (!token || !rawUser) return "";
-            const user = JSON.parse(rawUser);
-            return String((user && user.email) || "").trim().toLowerCase();
+            if (rawUser) {
+                const user = JSON.parse(rawUser);
+                const localEmail = String((user && user.email) || "").trim().toLowerCase();
+                if (localEmail) {
+                    return localEmail;
+                }
+            }
+        } catch (_) {
+            // Ignore local storage parse errors and try API fallback below.
+        }
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/auth/me`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            const data = await response.json();
+            if (!response.ok) return "";
+
+            const apiEmail = String((data && data.user && data.user.email) || "").trim().toLowerCase();
+            if (apiEmail) {
+                if (data.user) {
+                    localStorage.setItem("currentUser", JSON.stringify(data.user));
+                }
+                return apiEmail;
+            }
         } catch (_) {
             return "";
         }
+
+        return "";
     }
 
     async function captureLeadAndRedirect(email) {
@@ -134,7 +168,7 @@
             }
 
             submissionToken = data.submission_token;
-            const signedInEmail = getSignedInUserEmail();
+            const signedInEmail = await getSignedInUserEmail();
             if (signedInEmail) {
                 setStatus("Quiz complete. Opening your personalized result...", "success");
                 await captureLeadAndRedirect(signedInEmail);
