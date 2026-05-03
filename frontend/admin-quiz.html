@@ -218,7 +218,7 @@
 
         .option-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 180px auto;
+            grid-template-columns: 1fr 180px auto;
             gap: 8px;
             margin-bottom: 8px;
             align-items: end;
@@ -373,7 +373,7 @@
 
                 <section class="panel">
                     <h2>Result Styles</h2>
-                    <p class="muted" style="margin-bottom:10px;">Har option inhi styles me se ek ko score karega.</p>
+                    <p class="muted" style="margin-bottom:10px;">Har option inhi styles me se ek ko score karega. Technical keys system khud banata hai.</p>
                     <div id="styleList"></div>
                     <button class="small-btn" id="addStyleBtn"><i class="fas fa-plus"></i> Add Style</button>
                 </section>
@@ -381,7 +381,7 @@
 
             <section class="panel">
                 <h2>Questions</h2>
-                <p class="muted" style="margin-bottom:12px;">Client ke liye easy flow: question select karo, text aur options edit karo, style mapping select karo.</p>
+                <p class="muted" style="margin-bottom:12px;">Client ke liye easy flow: question select karo, text aur options edit karo, style mapping select karo. IDs/option keys automatic banti hain.</p>
                 <div class="question-layout">
                     <div>
                         <div id="questionList" class="question-list"></div>
@@ -393,10 +393,6 @@
                         </div>
                     </div>
                     <div class="editor-box">
-                        <div class="form-group">
-                            <label for="questionIdInput">Question ID</label>
-                            <input type="text" id="questionIdInput" placeholder="q1">
-                        </div>
                         <div class="form-group">
                             <label for="questionTextInput">Question Text</label>
                             <textarea id="questionTextInput" placeholder="Enter question text"></textarea>
@@ -439,15 +435,6 @@
 
         function getAccessToken() {
             return localStorage.getItem('access_token') || localStorage.getItem('accessToken');
-        }
-
-        function sanitizeKey(value, fallback) {
-            const normalized = String(value || '')
-                .trim()
-                .toLowerCase()
-                .replace(/[^a-z0-9_]+/g, '_')
-                .replace(/^_+|_+$/g, '');
-            return normalized || fallback;
         }
 
         function createUid(prefix) {
@@ -596,10 +583,6 @@
                         </button>
                     </div>
                     <div class="form-group">
-                        <label>Style Key</label>
-                        <input type="text" data-style-key="${style.uid}" value="${style.key}">
-                    </div>
-                    <div class="form-group">
                         <label>Result Title</label>
                         <input type="text" data-style-title="${style.uid}" value="${style.title}">
                     </div>
@@ -617,9 +600,6 @@
 
             list.querySelectorAll('[data-remove-style]').forEach((btn) => {
                 btn.addEventListener('click', () => removeStyle(btn.getAttribute('data-remove-style')));
-            });
-            list.querySelectorAll('[data-style-key]').forEach((input) => {
-                input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-key'), 'key', input.value));
             });
             list.querySelectorAll('[data-style-title]').forEach((input) => {
                 input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-title'), 'title', input.value));
@@ -640,7 +620,7 @@
                 const item = document.createElement('div');
                 item.className = `question-item ${index === state.selectedQuestionIndex ? 'active' : ''}`;
                 item.innerHTML = `
-                    <strong>${index + 1}. ${question.id || 'question'}</strong>
+                    <strong>Question ${index + 1}</strong>
                     <span>${question.question || 'No question text yet'}</span>
                 `;
                 item.addEventListener('click', () => {
@@ -657,13 +637,11 @@
             const optionRows = document.getElementById('optionRows');
 
             if (!question) {
-                document.getElementById('questionIdInput').value = '';
                 document.getElementById('questionTextInput').value = '';
                 optionRows.innerHTML = '';
                 return;
             }
 
-            document.getElementById('questionIdInput').value = question.id || '';
             document.getElementById('questionTextInput').value = question.question || '';
 
             const styleOptionsHtml = state.styles.map((style) => `
@@ -672,10 +650,6 @@
 
             optionRows.innerHTML = question.options.map((option, optionIndex) => `
                 <div class="option-row">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Option Key</label>
-                        <input type="text" data-option-key="${optionIndex}" value="${option.key || ''}">
-                    </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Option Text</label>
                         <input type="text" data-option-text="${optionIndex}" value="${option.text || ''}">
@@ -696,13 +670,6 @@
                 select.value = value;
                 select.addEventListener('change', () => {
                     question.options[idx].styleUid = select.value;
-                });
-            });
-
-            optionRows.querySelectorAll('[data-option-key]').forEach((input) => {
-                input.addEventListener('input', () => {
-                    const idx = Number(input.getAttribute('data-option-key'));
-                    question.options[idx].key = input.value;
                 });
             });
 
@@ -833,7 +800,7 @@
             const styleKeyByUid = {};
 
             state.styles.forEach((style, idx) => {
-                const finalKey = sanitizeKey(style.key, `style_${idx + 1}`);
+                const finalKey = `style_${idx + 1}`;
                 if (styles[finalKey]) {
                     throw new Error(`Duplicate style key: ${finalKey}`);
                 }
@@ -865,7 +832,7 @@
 
             const questionIds = new Set();
             const questions = state.questions.map((question, questionIndex) => {
-                const questionId = sanitizeKey(question.id, `q${questionIndex + 1}`);
+                const questionId = `q${questionIndex + 1}`;
                 if (questionIds.has(questionId)) {
                     throw new Error(`Duplicate question id: ${questionId}`);
                 }
@@ -878,7 +845,7 @@
 
                 const optionKeys = new Set();
                 const options = (question.options || []).map((option, optionIndex) => {
-                    const optionKey = sanitizeKey(option.key, `${questionId}_opt${optionIndex + 1}`);
+                    const optionKey = `${questionId}_opt${optionIndex + 1}`;
                     if (optionKeys.has(optionKey)) {
                         throw new Error(`Duplicate option key in ${questionId}: ${optionKey}`);
                     }
@@ -1010,13 +977,6 @@
 
             document.getElementById('quizDescription').addEventListener('input', (event) => {
                 state.description = event.target.value;
-            });
-
-            document.getElementById('questionIdInput').addEventListener('input', (event) => {
-                const question = getSelectedQuestion();
-                if (!question) return;
-                question.id = event.target.value;
-                renderQuestionList();
             });
 
             document.getElementById('questionTextInput').addEventListener('input', (event) => {
