@@ -11,6 +11,39 @@
     let quizData = null;
     let submissionToken = null;
 
+    function getSignedInUserEmail() {
+        try {
+            const token = localStorage.getItem("access_token");
+            const rawUser = localStorage.getItem("currentUser");
+            if (!token || !rawUser) return "";
+            const user = JSON.parse(rawUser);
+            return String((user && user.email) || "").trim().toLowerCase();
+        } catch (_) {
+            return "";
+        }
+    }
+
+    async function captureLeadAndRedirect(email) {
+        const response = await fetch(`${apiBaseUrl}/quiz/homeschool-style/capture-lead`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                submission_token: submissionToken,
+                email,
+                metadata: getUrlMetadata(),
+            }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || "Could not send result.");
+        }
+
+        window.location.href = data.redirect_url;
+    }
+
     function getUrlMetadata() {
         const params = new URLSearchParams(window.location.search);
         return {
@@ -101,6 +134,13 @@
             }
 
             submissionToken = data.submission_token;
+            const signedInEmail = getSignedInUserEmail();
+            if (signedInEmail) {
+                setStatus("Quiz complete. Opening your personalized result...", "success");
+                await captureLeadAndRedirect(signedInEmail);
+                return;
+            }
+
             document.getElementById("quiz-step").style.display = "none";
             emailGate.style.display = "block";
             setStatus("Almost there. Enter your email to see your personalized result.", "success");
@@ -124,24 +164,7 @@
         setStatus("Sending your results...", "info");
 
         try {
-            const response = await fetch(`${apiBaseUrl}/quiz/homeschool-style/capture-lead`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    submission_token: submissionToken,
-                    email: emailInput.value.trim(),
-                    metadata: getUrlMetadata(),
-                }),
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || "Could not send result.");
-            }
-
-            window.location.href = data.redirect_url;
+            await captureLeadAndRedirect(emailInput.value.trim());
         } catch (error) {
             setStatus(error.message || "Could not send result.", "error");
             submitButton.disabled = false;
