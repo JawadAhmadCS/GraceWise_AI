@@ -1,11 +1,9 @@
-﻿from collections import Counter
-from datetime import datetime
+from collections import Counter
 import json
-import os
 import re
 from pathlib import Path
 
-STYLE_PROFILES = {
+DEFAULT_STYLE_PROFILES = {
     "classical": {
         "title": "The Classical Guide",
         "summary": "You thrive with structure, deep learning, and clear academic progression. You likely enjoy using trusted curricula and helping your child build strong foundations over time.",
@@ -53,7 +51,7 @@ STYLE_PROFILES = {
     },
 }
 
-QUESTIONS = [
+DEFAULT_QUESTIONS = [
     {
         "id": "q1",
         "question": "When planning your homeschool week, what feels most natural?",
@@ -166,45 +164,219 @@ QUESTIONS = [
     },
 ]
 
+DEFAULT_QUIZ_CONFIG = {
+    "quiz_key": "homeschool_style",
+    "title": "What Is Your Homeschool Style?",
+    "description": "Answer 10 quick questions to discover your dominant homeschool style.",
+    "styles": DEFAULT_STYLE_PROFILES,
+    "questions": DEFAULT_QUESTIONS,
+}
 
-def get_public_quiz_payload():
+_ID_RE = re.compile(r"^[a-z0-9_]+$")
+
+
+def _clone(value):
+    return json.loads(json.dumps(value))
+
+
+def _config_path():
+    return Path(__file__).resolve().parents[1] / "config" / "homeschool_style_quiz.json"
+
+
+def _normalize_id(value, fallback):
+    text = str(value or "").strip().lower()
+    text = re.sub(r"[^a-z0-9_]+", "_", text).strip("_")
+    if not text:
+        text = fallback
+    if not _ID_RE.match(text):
+        raise ValueError(f"Invalid id '{text}'. Use lowercase letters, numbers, and underscores only.")
+    return text
+
+
+def _clean_text(value, field_name):
+    text = str(value or "").strip()
+    if not text:
+        raise ValueError(f"{field_name} is required")
+    return text
+
+
+def validate_quiz_config(raw_config):
+    if not isinstance(raw_config, dict):
+        raise ValueError("Quiz config must be an object")
+
+    title = _clean_text(raw_config.get("title"), "title")
+    description = _clean_text(raw_config.get("description"), "description")
+
+    raw_styles = raw_config.get("styles")
+    if not isinstance(raw_styles, dict) or not raw_styles:
+        raise ValueError("styles must be a non-empty object")
+
+    normalized_styles = {}
+    for raw_style_key, raw_profile in raw_styles.items():
+        style_key = _normalize_id(raw_style_key, "style")
+        if style_key in normalized_styles:
+            raise ValueError(f"Duplicate style key '{style_key}'")
+        if not isinstance(raw_profile, dict):
+            raise ValueError(f"Style '{style_key}' must be an object")
+
+        style_title = _clean_text(raw_profile.get("title"), f"styles.{style_key}.title")
+        style_summary = _clean_text(raw_profile.get("summary"), f"styles.{style_key}.summary")
+
+        strengths = raw_profile.get("strengths")
+        if isinstance(strengths, str):
+            strengths = [chunk.strip() for chunk in strengths.split("\n") if chunk.strip()]
+        if not isinstance(strengths, list) or not strengths:
+            raise ValueError(f"styles.{style_key}.strengths must be a non-empty list")
+
+        cleaned_strengths = []
+        for idx, item in enumerate(strengths, start=1):
+            strength_text = str(item or "").strip()
+            if not strength_text:
+                raise ValueError(f"styles.{style_key}.strengths[{idx}] cannot be empty")
+            cleaned_strengths.append(strength_text)
+
+        normalized_styles[style_key] = {
+            "title": style_title,
+            "summary": style_summary,
+            "strengths": cleaned_strengths,
+        }
+
+    raw_questions = raw_config.get("questions")
+    if not isinstance(raw_questions, list) or not raw_questions:
+        raise ValueError("questions must be a non-empty list")
+
+    normalized_questions = []
+    question_ids = set()
+
+    for q_index, raw_question in enumerate(raw_questions, start=1):
+        if not isinstance(raw_question, dict):
+            raise ValueError(f"Question #{q_index} must be an object")
+
+        question_id = _normalize_id(raw_question.get("id"), f"q{q_index}")
+        if question_id in question_ids:
+            raise ValueError(f"Duplicate question id '{question_id}'")
+        question_ids.add(question_id)
+
+        question_text = _clean_text(raw_question.get("question"), f"questions[{q_index}].question")
+
+        raw_options = raw_question.get("options")
+        if not isinstance(raw_options, list) or len(raw_options) < 2:
+            raise ValueError(f"Question '{question_id}' must have at least 2 options")
+
+        option_keys = set()
+        normalized_options = []
+        for o_index, raw_option in enumerate(raw_options, start=1):
+            if not isinstance(raw_option, dict):
+                raise ValueError(f"Question '{question_id}' option #{o_index} must be an object")
+
+            option_text = _clean_text(raw_option.get("text"), f"questions[{q_index}].options[{o_index}].text")
+            option_style = _normalize_id(raw_option.get("style"), "style")
+            if option_style not in normalized_styles:
+                raise ValueError(
+                    f"Question '{question_id}' option #{o_index} uses unknown style '{option_style}'"
+                )
+
+            option_key = _normalize_id(raw_option.get("key"), f"{question_id}_opt{o_index}")
+            if option_key in option_keys:
+                raise ValueError(f"Question '{question_id}' has duplicate option key '{option_key}'")
+            option_keys.add(option_key)
+
+            normalized_options.append({
+                "key": option_key,
+                "text": option_text,
+                "style": option_style,
+            })
+
+        normalized_questions.append({
+            "id": question_id,
+            "question": question_text,
+            "options": normalized_options,
+        })
+
     return {
         "quiz_key": "homeschool_style",
-        "title": "What Is Your Homeschool Style?",
-        "description": "Answer 10 quick questions to discover your dominant homeschool style.",
+        "title": title,
+        "description": description,
+        "styles": normalized_styles,
+        "questions": normalized_questions,
+    }
+
+
+def _load_default_config():
+    return validate_quiz_config(_clone(DEFAULT_QUIZ_CONFIG))
+
+
+def load_quiz_config():
+    path = _config_path()
+    if not path.exists():
+        return _load_default_config()
+
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        return validate_quiz_config(raw)
+    except Exception:
+        return _load_default_config()
+
+
+def save_quiz_config(raw_config):
+    normalized = validate_quiz_config(raw_config)
+    path = _config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
+    return normalized
+
+
+def reset_quiz_config():
+    return save_quiz_config(_clone(DEFAULT_QUIZ_CONFIG))
+
+
+def get_admin_quiz_payload():
+    return load_quiz_config()
+
+
+def get_public_quiz_payload():
+    config = load_quiz_config()
+    return {
+        "quiz_key": config["quiz_key"],
+        "title": config["title"],
+        "description": config["description"],
         "questions": [
             {
-                "id": q["id"],
-                "question": q["question"],
-                "options": [{"key": opt["key"], "text": opt["text"]} for opt in q["options"]],
+                "id": question["id"],
+                "question": question["question"],
+                "options": [
+                    {
+                        "key": option["key"],
+                        "text": option["text"],
+                    }
+                    for option in question["options"]
+                ],
             }
-            for q in QUESTIONS
+            for question in config["questions"]
         ],
     }
 
 
 def calculate_result(answer_map):
-    style_counts = Counter({key: 0 for key in STYLE_PROFILES.keys()})
+    config = load_quiz_config()
+    style_profiles = config["styles"]
+    questions = config["questions"]
 
-    for question in QUESTIONS:
-        qid = question["id"]
-        selected = answer_map.get(qid)
+    style_counts = Counter({key: 0 for key in style_profiles.keys()})
+
+    for question in questions:
+        selected = (answer_map or {}).get(question["id"])
         for option in question["options"]:
             if option["key"] == selected:
                 style_counts[option["style"]] += 1
                 break
 
-    sorted_styles = sorted(
-        style_counts.items(),
-        key=lambda item: item[1],
-        reverse=True,
-    )
-
+    sorted_styles = sorted(style_counts.items(), key=lambda item: item[1], reverse=True)
     top_style = sorted_styles[0][0]
     second_style = sorted_styles[1][0] if len(sorted_styles) > 1 else top_style
 
-    top_profile = STYLE_PROFILES[top_style]
-    second_profile = STYLE_PROFILES[second_style]
+    top_profile = style_profiles[top_style]
+    second_profile = style_profiles[second_style]
 
     result_summary = (
         f"Primary style: {top_profile['title']}. "
@@ -216,7 +388,7 @@ def calculate_result(answer_map):
         "result_key": top_style,
         "result_title": top_profile["title"],
         "result_summary": result_summary,
-        "strengths": top_profile["strengths"],
+        "strengths": top_profile.get("strengths", []),
         "score_breakdown": dict(style_counts),
     }
 
@@ -225,12 +397,14 @@ def is_valid_answer_payload(answer_map):
     if not isinstance(answer_map, dict):
         return False
 
-    for question in QUESTIONS:
-        qid = question["id"]
-        if qid not in answer_map:
+    config = load_quiz_config()
+    for question in config["questions"]:
+        question_id = question["id"]
+        if question_id not in answer_map:
             return False
+
         valid_keys = {option["key"] for option in question["options"]}
-        if answer_map[qid] not in valid_keys:
+        if answer_map[question_id] not in valid_keys:
             return False
 
     return True

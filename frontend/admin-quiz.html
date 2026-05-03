@@ -423,6 +423,40 @@
             margin-top: 6px;
         }
 
+        .json-editor-wrap {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 14px;
+        }
+
+        .json-editor-hint {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 12px;
+        }
+
+        .json-editor {
+            width: 100%;
+            min-height: 420px;
+            border: 1px solid #d7dee8;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.45;
+            resize: vertical;
+            background: #f8fafc;
+            color: #1f2937;
+        }
+
+        .json-editor-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
         @media (max-width: 1024px) {
             .builder-shell {
                 grid-template-columns: 1fr;
@@ -605,6 +639,9 @@
                     <button class="tab-button" data-tab="manage">
                         <i class="fas fa-list"></i> Manage Quizzes
                     </button>
+                    <button class="tab-button" data-tab="homeschool-style">
+                        <i class="fas fa-compass"></i> Homeschool Style Quiz
+                    </button>
                 </div>
 
                 <!-- Upload Documents Tab -->
@@ -730,6 +767,27 @@
                         <!-- Quizzes will be listed here -->
                     </div>
                 </div>
+
+                <div class="tab-content" id="homeschool-style-tab">
+                    <h3>Homeschool Style Quiz (Landing Page)</h3>
+                    <div class="json-editor-wrap">
+                        <p class="json-editor-hint">
+                            Yeh config <code>/homeschool-quiz.html</code> ko control karti hai. Yahan se questions, options, styles, title, aur description sab edit karke save kar sakte hain.
+                        </p>
+                        <textarea id="homeschoolStyleConfigJson" class="json-editor" spellcheck="false"></textarea>
+                        <div class="json-editor-actions">
+                            <button type="button" class="small-btn" id="reloadHomeschoolStyleBtn">
+                                <i class="fas fa-rotate"></i> Reload
+                            </button>
+                            <button type="button" class="small-btn primary" id="saveHomeschoolStyleBtn">
+                                <i class="fas fa-save"></i> Save Config
+                            </button>
+                            <button type="button" class="small-btn danger" id="resetHomeschoolStyleBtn">
+                                <i class="fas fa-undo"></i> Reset Default
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -761,6 +819,7 @@
         }
 
         let quizzesCache = [];
+        let homeschoolStyleQuizConfig = null;
         let quizBuilderState = {
             quizId: null,
             questions: [],
@@ -978,6 +1037,98 @@
             return true;
         }
 
+        function setHomeschoolStyleEditorValue(config) {
+            const editor = document.getElementById('homeschoolStyleConfigJson');
+            if (!editor) return;
+            editor.value = JSON.stringify(config || {}, null, 2);
+        }
+
+        async function loadHomeschoolStyleConfig(showToast = false) {
+            const editor = document.getElementById('homeschoolStyleConfigJson');
+            if (!editor) return;
+
+            editor.value = 'Loading...';
+            try {
+                const token = getAccessToken();
+                const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/config`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to load homeschool style quiz config');
+                }
+
+                homeschoolStyleQuizConfig = data.quiz || {};
+                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
+                if (showToast) {
+                    showSuccess('Homeschool style quiz config loaded');
+                }
+            } catch (error) {
+                editor.value = '';
+                showError(error.message || 'Failed to load homeschool style quiz config');
+            }
+        }
+
+        async function saveHomeschoolStyleConfig() {
+            const editor = document.getElementById('homeschoolStyleConfigJson');
+            if (!editor) return;
+
+            let payload;
+            try {
+                payload = JSON.parse(editor.value);
+            } catch (_) {
+                showError('Invalid JSON. Please fix syntax and try again.');
+                return;
+            }
+
+            try {
+                const token = getAccessToken();
+                const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/config`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to save homeschool style quiz config');
+                }
+
+                homeschoolStyleQuizConfig = data.quiz || payload;
+                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
+                showSuccess(data.message || 'Homeschool style quiz updated');
+            } catch (error) {
+                showError(error.message || 'Failed to save homeschool style quiz config');
+            }
+        }
+
+        async function resetHomeschoolStyleConfig() {
+            if (!confirm('Reset homeschool style quiz to default config?')) return;
+            try {
+                const token = getAccessToken();
+                const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to reset homeschool style quiz config');
+                }
+
+                homeschoolStyleQuizConfig = data.quiz || {};
+                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
+                showSuccess(data.message || 'Homeschool style quiz reset to default');
+            } catch (error) {
+                showError(error.message || 'Failed to reset homeschool style quiz config');
+            }
+        }
+
         // Run after deferred scripts are loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', verifyAdminAccess);
@@ -1016,6 +1167,8 @@
                     loadQuizzes(true);
                 } else if (button.getAttribute('data-tab') === 'manage') {
                     loadQuizzes(true);
+                } else if (button.getAttribute('data-tab') === 'homeschool-style') {
+                    loadHomeschoolStyleConfig();
                 }
             });
         });
@@ -1490,6 +1643,9 @@
             const addOptionBtn = document.getElementById('addOptionBtn');
             const saveBuilderBtn = document.getElementById('saveBuilderBtn');
             const resetBuilderBtn = document.getElementById('resetBuilderBtn');
+            const reloadHomeschoolStyleBtn = document.getElementById('reloadHomeschoolStyleBtn');
+            const saveHomeschoolStyleBtn = document.getElementById('saveHomeschoolStyleBtn');
+            const resetHomeschoolStyleBtn = document.getElementById('resetHomeschoolStyleBtn');
 
             if (newQuizBtn) newQuizBtn.addEventListener('click', resetQuizBuilderForm);
             if (addQuestionBtn) addQuestionBtn.addEventListener('click', addBuilderQuestion);
@@ -1500,6 +1656,9 @@
             });
             if (saveBuilderBtn) saveBuilderBtn.addEventListener('click', saveQuizFromBuilder);
             if (resetBuilderBtn) resetBuilderBtn.addEventListener('click', resetQuizBuilderForm);
+            if (reloadHomeschoolStyleBtn) reloadHomeschoolStyleBtn.addEventListener('click', () => loadHomeschoolStyleConfig(true));
+            if (saveHomeschoolStyleBtn) saveHomeschoolStyleBtn.addEventListener('click', saveHomeschoolStyleConfig);
+            if (resetHomeschoolStyleBtn) resetHomeschoolStyleBtn.addEventListener('click', resetHomeschoolStyleConfig);
         }
 
         // Load initial data

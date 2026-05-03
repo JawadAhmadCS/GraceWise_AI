@@ -4,12 +4,16 @@ import secrets
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from models import db, HomeschoolStyleSubmission
+from models import User, db, HomeschoolStyleSubmission
 from services.homeschool_style_quiz import (
     calculate_result,
+    get_admin_quiz_payload,
     get_public_quiz_payload,
     is_valid_answer_payload,
+    reset_quiz_config,
+    save_quiz_config,
 )
 from services.systeme_service import push_quiz_lead_to_systeme
 from services.email_service import send_homeschool_style_result_email
@@ -34,9 +38,67 @@ def _build_result_payload(submission):
     }
 
 
+def _current_user():
+    user_id = get_jwt_identity()
+    if isinstance(user_id, str):
+        user_id = int(user_id)
+    return User.query.get(user_id)
+
+
+def _require_admin():
+    user = _current_user()
+    if not user or not user.is_admin:
+        return None, (jsonify({"message": "Admin access required"}), 403)
+    return user, None
+
+
 @homeschool_style_quiz_bp.route("/homeschool-style/questions", methods=["GET"])
 def get_homeschool_style_questions():
     return jsonify(get_public_quiz_payload()), 200
+
+
+@homeschool_style_quiz_bp.route("/homeschool-style/admin/config", methods=["GET"])
+@jwt_required()
+def get_homeschool_style_admin_config():
+    _, admin_error = _require_admin()
+    if admin_error:
+        return admin_error
+
+    return jsonify({"quiz": get_admin_quiz_payload()}), 200
+
+
+@homeschool_style_quiz_bp.route("/homeschool-style/admin/config", methods=["PUT"])
+@jwt_required()
+def update_homeschool_style_admin_config():
+    _, admin_error = _require_admin()
+    if admin_error:
+        return admin_error
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        updated = save_quiz_config(payload)
+        return jsonify({
+            "message": "Homeschool style quiz updated successfully.",
+            "quiz": updated,
+        }), 200
+    except ValueError as error:
+        return jsonify({"message": str(error)}), 400
+    except Exception as error:
+        return jsonify({"message": f"Could not update quiz config: {error}"}), 500
+
+
+@homeschool_style_quiz_bp.route("/homeschool-style/admin/reset", methods=["POST"])
+@jwt_required()
+def reset_homeschool_style_admin_config():
+    _, admin_error = _require_admin()
+    if admin_error:
+        return admin_error
+
+    reset_payload = reset_quiz_config()
+    return jsonify({
+        "message": "Homeschool style quiz reset to default.",
+        "quiz": reset_payload,
+    }), 200
 
 
 @homeschool_style_quiz_bp.route("/homeschool-style/submit", methods=["POST"])
