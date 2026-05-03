@@ -3,400 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Management - Gracewise</title>
+    <title>Homeschool Quiz Control - Gracewise</title>
     <link rel="stylesheet" href="css/admin-sidebar.css">
     <link rel="stylesheet" href="css/admin-dashboard.css">
     <link rel="stylesheet" href="css/notifications.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="js/notifications.js" defer></script>
     <script src="js/auth.js" defer></script>
     <script src="js/config.js"></script>
     <style>
-        .tab-container {
-            background: white;
-            border-radius: 12px;
+        .builder-shell {
             padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: grid;
+            gap: 18px;
         }
 
-        .tabs {
-            display: flex;
-            gap: 16px;
-            border-bottom: 2px solid #f1f1f1;
-            margin-bottom: 24px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            flex-wrap: nowrap;
-        }
-
-        .tabs::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .tabs::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 2px;
-        }
-
-        .tab-button {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            color: #718096;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .tab-button.active {
-            color: #b59c61;
-            border-bottom-color: #b59c61;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .upload-area {
-            border: 2px dashed #d4af37;
+        .page-head {
+            background: #ffffff;
+            border: 1px solid #eceff3;
             border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            background: #faf9f7;
-            transition: all 0.3s ease;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .upload-area:hover {
-            background: #f5f3f0;
+        .page-head h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #1f2937;
         }
 
-        .upload-area.dragging {
-            background: #fff5f2;
-            border-color: #b59c61;
+        .page-head p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 0.94rem;
         }
 
-        .upload-icon {
-            font-size: 48px;
-            color: #b59c61;
-            margin-bottom: 16px;
+        .head-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .upload-text {
-            font-size: 16px;
-            color: #2d3748;
-            margin-bottom: 8px;
+        .panel {
+            background: #ffffff;
+            border: 1px solid #eceff3;
+            border-radius: 12px;
+            padding: 16px;
         }
 
-        .upload-hint {
-            font-size: 14px;
-            color: #718096;
+        .panel h2 {
+            margin: 0 0 12px;
+            font-size: 1.05rem;
+            color: #1f2937;
         }
 
-        .file-input {
-            display: none;
-        }
-
-        .upload-btn {
-            background: linear-gradient(135deg, #b59c61, #d4af37);
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 16px;
-            transition: transform 0.2s ease;
-        }
-
-        .upload-btn:hover {
-            transform: translateY(-2px);
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
-            font-weight: 500;
-            color: #2d3748;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.86rem;
         }
 
         .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #d8e0ea;
             border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
+            padding: 10px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            background: #ffffff;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #b59c61;
-        }
-
-        .uploaded-files {
-            margin-top: 24px;
-        }
-
-        .uploaded-files h3 {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .file-info div {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .file-info strong {
-            display: block;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-all;
-        }
-
-        .file-info small {
-            display: block;
-            word-wrap: break-word;
-        }
-
-        .file-icon {
-            width: 40px;
-            height: 40px;
-            background: #b59c61;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .generate-quiz-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .generate-quiz-btn:hover {
-            background: #218838;
-        }
-
-        .quiz-list {
-            margin-top: 24px;
-        }
-
-        .quiz-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border-left: 4px solid #b59c61;
-        }
-
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 12px;
-        }
-
-        .quiz-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .quiz-meta {
-            font-size: 14px;
-            color: #718096;
-        }
-
-        .quiz-stats {
-            display: flex;
-            gap: 24px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .quiz-stat {
-            font-size: 14px;
-            color: #718096;
-        }
-
-        .quiz-stat strong {
-            color: #2d3748;
-        }
-
-        .delete-quiz-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: background 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .delete-quiz-btn:hover {
-            background: #c82333;
-        }
-
-        .quiz-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .edit-quiz-btn {
-            background: #2b6cb0;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .edit-quiz-btn:hover {
-            background: #24578f;
-        }
-
-        .toggle-quiz-btn {
-            background: #5a6575;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .toggle-quiz-btn:hover {
-            background: #4a5568;
-        }
-
-        .builder-shell {
-            display: grid;
-            grid-template-columns: 1.05fr 1fr;
-            gap: 16px;
-            margin-top: 12px;
-        }
-
-        .builder-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px;
-            background: #fff;
-        }
-
-        .builder-card h4 {
-            margin: 0 0 10px;
-            color: #2d3748;
-        }
-
-        .question-list-compact {
-            max-height: 460px;
-            overflow-y: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: #f9fafb;
-        }
-
-        .question-row-compact {
-            padding: 10px 12px;
-            border-bottom: 1px solid #edf2f7;
-            cursor: pointer;
-        }
-
-        .question-row-compact:last-child {
-            border-bottom: none;
-        }
-
-        .question-row-compact.active {
-            background: #fff3e0;
-            border-left: 4px solid #b59c61;
-            padding-left: 8px;
-        }
-
-        .question-row-compact-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 4px;
-        }
-
-        .question-row-compact-meta {
-            font-size: 12px;
-            color: #718096;
-        }
-
-        .builder-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+        .form-group textarea {
+            min-height: 88px;
+            resize: vertical;
         }
 
         .small-btn {
             border: none;
-            border-radius: 7px;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: 600;
+            border-radius: 8px;
+            padding: 9px 12px;
             cursor: pointer;
-            background: #edf2f7;
-            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.84rem;
+            color: #1f2937;
+            background: #e8edf3;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .small-btn:hover {
+            filter: brightness(0.98);
         }
 
         .small-btn.primary {
@@ -404,162 +121,171 @@
             color: #fff;
         }
 
-        .small-btn.danger {
-            background: #e53e3e;
+        .small-btn.success {
+            background: #15803d;
             color: #fff;
         }
 
-        .option-row-builder {
+        .small-btn.danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .small-btn.ghost {
+            background: #fff;
+            border: 1px solid #d8e0ea;
+        }
+
+        .style-card {
+            border: 1px solid #e7edf4;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fcfdff;
+        }
+
+        .style-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .style-title {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .question-layout {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 290px 1fr;
+            gap: 14px;
+        }
+
+        .question-list {
+            border: 1px solid #e7edf4;
+            border-radius: 10px;
+            max-height: 560px;
+            overflow: auto;
+            background: #fcfdff;
+        }
+
+        .question-item {
+            border-bottom: 1px solid #edf2f7;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .question-item:last-child {
+            border-bottom: none;
+        }
+
+        .question-item.active {
+            background: #fff6e6;
+            border-left: 4px solid #b59c61;
+            padding-left: 6px;
+        }
+
+        .question-item strong {
+            display: block;
+            font-size: 0.9rem;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .question-item span {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .editor-box {
+            border: 1px solid #e7edf4;
+            border-radius: 10px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .option-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 180px auto;
             gap: 8px;
             margin-bottom: 8px;
-            align-items: center;
+            align-items: end;
         }
 
-        .builder-help {
-            font-size: 12px;
-            color: #718096;
-            margin-top: 6px;
+        .muted {
+            color: #64748b;
+            font-size: 0.84rem;
         }
 
-        .json-editor-wrap {
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            background: #ffffff;
-            padding: 14px;
+        .status-line {
+            color: #475569;
+            font-size: 0.85rem;
         }
 
-        .json-editor-hint {
-            font-size: 13px;
-            color: #718096;
-            margin-bottom: 12px;
-        }
-
-        .json-editor {
-            width: 100%;
-            min-height: 420px;
-            border: 1px solid #d7dee8;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: "Consolas", "Courier New", monospace;
-            font-size: 13px;
-            line-height: 1.45;
-            resize: vertical;
-            background: #f8fafc;
-            color: #1f2937;
-        }
-
-        .json-editor-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        @media (max-width: 1024px) {
-            .builder-shell {
+        @media (max-width: 1150px) {
+            .grid-2 {
                 grid-template-columns: 1fr;
             }
+
+            .question-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .question-list {
+                max-height: 260px;
+            }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .tab-container {
-                padding: 16px;
+            .builder-shell {
+                padding: 14px;
+            }
+
+            .page-head {
+                padding: 14px;
+            }
+
+            .option-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+                padding: 8px;
+                border: 1px solid #edf2f7;
                 border-radius: 8px;
+                margin-bottom: 10px;
             }
 
-            .tabs {
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-
-            .tab-button {
-                padding: 10px 16px;
-                font-size: 14px;
-            }
-
-            .upload-area {
-                padding: 30px 20px;
-            }
-
-            .upload-icon {
-                font-size: 36px;
-            }
-
-            .upload-text {
-                font-size: 14px;
-            }
-
-            .upload-hint {
-                font-size: 13px;
-            }
-
-            .quiz-card {
-                padding: 16px;
-            }
-
-            .quiz-header {
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .quiz-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .quiz-stats {
-                flex-direction: column;
-                gap: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tab-container {
-                padding: 12px;
-            }
-
-            .tab-button {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-
-            .upload-area {
-                padding: 24px 16px;
-            }
-
-            .file-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .file-info {
+            .head-actions,
+            .question-actions {
                 width: 100%;
             }
 
-            .file-info strong {
-                font-size: 14px;
-            }
-
-            .quiz-title {
-                font-size: 16px;
+            .head-actions .small-btn,
+            .question-actions .small-btn {
+                flex: 1;
+                min-width: 120px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
     <div class="mobile-menu-toggle">
         <i class="fas fa-bars"></i>
     </div>
-    
-    <!-- Mobile Overlay -->
+
     <div class="mobile-overlay"></div>
-    
-    <!-- Sidebar -->
+
     <div class="sidebar">
         <div class="logo">
             <img src="assest/logo/main_logo.png" alt="Gracewise Logo">
@@ -595,21 +321,21 @@
             <div class="user-section">
                 <a href="#">
                     <i class="fas fa-cog"></i>
-                    Settings</a>
+                    Settings
+                </a>
                 <a href="#" onclick="auth.logout()">
                     <i class="fas fa-sign-out-alt"></i>
-                    Logout</a>
+                    Logout
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Header -->
         <header class="header">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="What do you want to learn">
+                <input type="text" placeholder="Homeschool quiz control">
             </div>
             <div class="header-right">
                 <div class="avatar">
@@ -618,185 +344,79 @@
             </div>
         </header>
 
-        <!-- Dashboard Content -->
-        <div class="dashboard-container">
-            <div class="dashboard-header">
-                <h1>Quiz Management</h1>
-                <p class="welcome-text">Upload documents and generate quizzes for students</p>
-            </div>
-
-            <div class="tab-container">
-                <div class="tabs">
-                    <button class="tab-button active" data-tab="upload">
-                        <i class="fas fa-upload"></i> Upload Documents
-                    </button>
-                    <button class="tab-button" data-tab="generate">
-                        <i class="fas fa-magic"></i> Generate Quiz
-                    </button>
-                    <button class="tab-button" data-tab="builder">
-                        <i class="fas fa-pen-ruler"></i> Quiz Builder
-                    </button>
-                    <button class="tab-button" data-tab="manage">
-                        <i class="fas fa-list"></i> Manage Quizzes
-                    </button>
-                    <button class="tab-button" data-tab="homeschool-style">
-                        <i class="fas fa-compass"></i> Homeschool Style Quiz
-                    </button>
+        <div class="builder-shell">
+            <div class="page-head">
+                <div>
+                    <h1>Homeschool Quiz Control</h1>
+                    <p>Sirf ek quiz ka control: <code>homeschool-quiz.html</code>. Yahan se title, styles, questions, options sab edit hota hai.</p>
                 </div>
-
-                <!-- Upload Documents Tab -->
-                <div class="tab-content active" id="upload-tab">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        <p class="upload-text">Drag and drop your document here or click to browse</p>
-                        <p class="upload-hint">Supported formats: PDF, TXT, DOC, DOCX, MD (Max 50MB)</p>
-                        <p class="upload-hint" style="color: #e67e22; font-size: 12px; margin-top: 8px;">Note: Text files work best for quiz generation. PDF support coming soon.</p>
-                        <input type="file" class="file-input" id="fileInput" accept=".pdf,.txt,.doc,.docx,.md">
-                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                            Select File
-                        </button>
-                    </div>
-
-                    <div class="uploaded-files" id="uploadedFiles">
-                        <h3>Recently Uploaded Documents</h3>
-                        <!-- Files will be listed here -->
-                    </div>
-                </div>
-
-                <!-- Generate Quiz Tab -->
-                <div class="tab-content" id="generate-tab">
-                    <h3>Generate Quiz from Document</h3>
-                    <form id="generateQuizForm">
-                        <div class="form-group">
-                            <label>Select Document</label>
-                            <select id="documentSelect" required>
-                                <option value="">-- Select a document --</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Quiz Title</label>
-                            <input type="text" id="quizTitle" placeholder="Enter quiz title" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Quiz Description</label>
-                            <textarea id="quizDescription" rows="3" placeholder="Enter quiz description (optional)"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Number of Questions</label>
-                            <input type="number" id="numQuestions" min="3" max="20" value="5" required>
-                        </div>
-
-                        <button type="submit" class="upload-btn">
-                            <i class="fas fa-magic"></i> Generate Quiz
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Quiz Builder Tab -->
-                <div class="tab-content" id="builder-tab">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-                        <h3 style="margin:0;">Build / Edit Quiz</h3>
-                        <button type="button" class="small-btn primary" id="newQuizBtn">
-                            <i class="fas fa-plus"></i> New Quiz
-                        </button>
-                    </div>
-                    <p class="builder-help">Simple setup: quiz title likhein, phir questions aur options add karein.</p>
-
-                    <div class="form-group" style="margin-top:14px;">
-                        <label>Select Existing Quiz (optional)</label>
-                        <select id="builderQuizSelect">
-                            <option value="">-- Create New Quiz --</option>
-                        </select>
-                    </div>
-
-                    <div class="builder-shell">
-                        <div class="builder-card">
-                            <h4>Quiz Details</h4>
-                            <div class="form-group">
-                                <label>Quiz Title</label>
-                                <input type="text" id="builderTitle" placeholder="e.g. Math Foundations" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea id="builderDescription" rows="3" placeholder="Short quiz description"></textarea>
-                            </div>
-                            <input type="hidden" id="builderDocumentName" value="">
-                            <input type="checkbox" id="builderActive" checked style="display:none;">
-
-                            <h4 style="margin-top:16px;">Questions</h4>
-                            <div class="question-list-compact" id="builderQuestionList"></div>
-                            <div class="builder-actions">
-                                <button type="button" class="small-btn" id="addQuestionBtn">Add Question</button>
-                                <button type="button" class="small-btn danger" id="deleteQuestionBtn">Delete</button>
-                            </div>
-                        </div>
-
-                        <div class="builder-card">
-                            <h4>Question Editor</h4>
-                            <div class="form-group">
-                                <label>Question</label>
-                                <textarea id="builderQuestionText" rows="3" placeholder="Enter question text"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Options</label>
-                                <div id="builderOptionRows"></div>
-                                <button type="button" class="small-btn" id="addOptionBtn">Add Option</button>
-                            </div>
-                            <div class="form-group">
-                                <label>Correct Option</label>
-                                <select id="builderCorrectAnswer"></select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="builder-actions" style="margin-top:16px;">
-                        <button type="button" class="small-btn" id="resetBuilderBtn">Reset</button>
-                        <button type="button" class="small-btn primary" id="saveBuilderBtn">Save Quiz</button>
-                    </div>
-                </div>
-
-                <!-- Manage Quizzes Tab -->
-                <div class="tab-content" id="manage-tab">
-                    <h3>All Quizzes</h3>
-                    <div class="quiz-list" id="quizList">
-                        <!-- Quizzes will be listed here -->
-                    </div>
-                </div>
-
-                <div class="tab-content" id="homeschool-style-tab">
-                    <h3>Homeschool Style Quiz (Landing Page)</h3>
-                    <div class="json-editor-wrap">
-                        <p class="json-editor-hint">
-                            Yeh config <code>/homeschool-quiz.html</code> ko control karti hai. Yahan se questions, options, styles, title, aur description sab edit karke save kar sakte hain.
-                        </p>
-                        <textarea id="homeschoolStyleConfigJson" class="json-editor" spellcheck="false"></textarea>
-                        <div class="json-editor-actions">
-                            <button type="button" class="small-btn" id="reloadHomeschoolStyleBtn">
-                                <i class="fas fa-rotate"></i> Reload
-                            </button>
-                            <button type="button" class="small-btn primary" id="saveHomeschoolStyleBtn">
-                                <i class="fas fa-save"></i> Save Config
-                            </button>
-                            <button type="button" class="small-btn danger" id="resetHomeschoolStyleBtn">
-                                <i class="fas fa-undo"></i> Reset Default
-                            </button>
-                        </div>
-                    </div>
+                <div class="head-actions">
+                    <button class="small-btn" id="reloadBtn"><i class="fas fa-rotate"></i> Reload</button>
+                    <button class="small-btn success" id="saveBtn"><i class="fas fa-save"></i> Save</button>
+                    <button class="small-btn danger" id="resetBtn"><i class="fas fa-undo"></i> Reset Default</button>
+                    <a class="small-btn ghost" href="homeschool-quiz.html" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Open Quiz</a>
                 </div>
             </div>
+
+            <div class="grid-2">
+                <section class="panel">
+                    <h2>Quiz Basic Info</h2>
+                    <div class="form-group">
+                        <label for="quizTitle">Quiz Title</label>
+                        <input type="text" id="quizTitle" placeholder="What Is Your Homeschool Style?">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="quizDescription">Quiz Description</label>
+                        <textarea id="quizDescription" placeholder="Short description shown on landing quiz page"></textarea>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2>Result Styles</h2>
+                    <p class="muted" style="margin-bottom:10px;">Har option inhi styles me se ek ko score karega.</p>
+                    <div id="styleList"></div>
+                    <button class="small-btn" id="addStyleBtn"><i class="fas fa-plus"></i> Add Style</button>
+                </section>
+            </div>
+
+            <section class="panel">
+                <h2>Questions</h2>
+                <p class="muted" style="margin-bottom:12px;">Client ke liye easy flow: question select karo, text aur options edit karo, style mapping select karo.</p>
+                <div class="question-layout">
+                    <div>
+                        <div id="questionList" class="question-list"></div>
+                        <div class="question-actions">
+                            <button class="small-btn" id="addQuestionBtn"><i class="fas fa-plus"></i> Add Question</button>
+                            <button class="small-btn" id="moveQuestionUpBtn"><i class="fas fa-arrow-up"></i> Move Up</button>
+                            <button class="small-btn" id="moveQuestionDownBtn"><i class="fas fa-arrow-down"></i> Move Down</button>
+                            <button class="small-btn danger" id="deleteQuestionBtn"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    </div>
+                    <div class="editor-box">
+                        <div class="form-group">
+                            <label for="questionIdInput">Question ID</label>
+                            <input type="text" id="questionIdInput" placeholder="q1">
+                        </div>
+                        <div class="form-group">
+                            <label for="questionTextInput">Question Text</label>
+                            <textarea id="questionTextInput" placeholder="Enter question text"></textarea>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#334155;font-size:0.86rem;">Options</label>
+                            <div id="optionRows"></div>
+                            <button class="small-btn" id="addOptionBtn"><i class="fas fa-plus"></i> Add Option</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="status-line" id="statusLine">Ready.</div>
         </div>
     </div>
 
     <script>
-        // Verify admin access - wrap in DOMContentLoaded to wait for deferred scripts
         function verifyAdminAccess() {
             if (typeof auth === 'undefined') {
-                // If auth is not defined yet, retry after a short delay
                 setTimeout(verifyAdminAccess, 100);
                 return;
             }
@@ -805,12 +425,15 @@
                 showWarning('You must be logged in to access this page');
                 setTimeout(() => {
                     window.location.href = 'sign_in.html';
-                }, 1500);
-            } else if (!auth.currentUser || !auth.currentUser.is_admin) {
-                showError('Admin access required. You do not have permission to access this page.');
+                }, 1200);
+                return;
+            }
+
+            if (!auth.currentUser || !auth.currentUser.is_admin) {
+                showError('Admin access required. Redirecting...');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
-                }, 2000);
+                }, 1400);
             }
         }
 
@@ -818,237 +441,489 @@
             return localStorage.getItem('access_token') || localStorage.getItem('accessToken');
         }
 
-        let quizzesCache = [];
-        let homeschoolStyleQuizConfig = null;
-        let quizBuilderState = {
-            quizId: null,
+        function sanitizeKey(value, fallback) {
+            const normalized = String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9_]+/g, '_')
+                .replace(/^_+|_+$/g, '');
+            return normalized || fallback;
+        }
+
+        function createUid(prefix) {
+            return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+        }
+
+        let state = {
+            quiz_key: 'homeschool_style',
+            title: '',
+            description: '',
+            styles: [],
             questions: [],
-            selectedQuestionIndex: -1
+            selectedQuestionIndex: 0,
         };
 
-        function createDefaultQuestion() {
+        function defaultStyle(idx) {
             return {
-                question: 'New question',
-                options: ['Option 1', 'Option 2'],
-                correct_answer: 'Option 1',
-                explanation: ''
+                uid: createUid('style'),
+                key: `style_${idx + 1}`,
+                title: `Style ${idx + 1}`,
+                summary: '',
+                strengthsText: 'Strength 1\nStrength 2'
             };
         }
 
-        function resetQuizBuilderForm() {
-            quizBuilderState = {
-                quizId: null,
-                questions: [createDefaultQuestion()],
-                selectedQuestionIndex: 0
+        function defaultOption(questionId, optionIndex, styleUid) {
+            return {
+                key: `${questionId}_opt${optionIndex + 1}`,
+                text: `Option ${optionIndex + 1}`,
+                styleUid: styleUid || null,
             };
-
-            document.getElementById('builderQuizSelect').value = '';
-            document.getElementById('builderTitle').value = '';
-            document.getElementById('builderDescription').value = '';
-            document.getElementById('builderDocumentName').value = '';
-            document.getElementById('builderActive').checked = true;
-
-            renderBuilderQuestionList();
-            renderBuilderQuestionEditor();
         }
 
-        function renderBuilderQuizSelect() {
-            const select = document.getElementById('builderQuizSelect');
-            if (!select) return;
+        function defaultQuestion(index, firstStyleUid) {
+            const qid = `q${index + 1}`;
+            return {
+                id: qid,
+                question: `Question ${index + 1}`,
+                options: [
+                    defaultOption(qid, 0, firstStyleUid),
+                    defaultOption(qid, 1, firstStyleUid),
+                ],
+            };
+        }
 
-            const current = String(select.value || '');
-            select.innerHTML = '<option value="">-- Create New Quiz --</option>';
+        function getSelectedQuestion() {
+            return state.questions[state.selectedQuestionIndex] || null;
+        }
 
-            quizzesCache.forEach((quiz) => {
-                const option = document.createElement('option');
-                option.value = String(quiz.id);
-                option.textContent = `${quiz.title} (${quiz.questions?.length || 0} questions)`;
-                select.appendChild(option);
+        function normalizeStatePointers() {
+            if (!state.styles.length) {
+                state.styles = [defaultStyle(0)];
+            }
+
+            const firstStyleUid = state.styles[0].uid;
+            const validStyleUids = new Set(state.styles.map((s) => s.uid));
+
+            state.questions.forEach((question, qIndex) => {
+                if (!question.id) {
+                    question.id = `q${qIndex + 1}`;
+                }
+                if (!Array.isArray(question.options) || question.options.length < 2) {
+                    question.options = [
+                        defaultOption(question.id, 0, firstStyleUid),
+                        defaultOption(question.id, 1, firstStyleUid),
+                    ];
+                }
+
+                question.options.forEach((option, optionIndex) => {
+                    if (!option.key) {
+                        option.key = `${question.id}_opt${optionIndex + 1}`;
+                    }
+                    if (!validStyleUids.has(option.styleUid)) {
+                        option.styleUid = firstStyleUid;
+                    }
+                });
             });
 
-            if (current && quizzesCache.some((q) => String(q.id) === current)) {
-                select.value = current;
+            if (!state.questions.length) {
+                state.questions = [defaultQuestion(0, firstStyleUid)];
+            }
+
+            if (state.selectedQuestionIndex < 0 || state.selectedQuestionIndex >= state.questions.length) {
+                state.selectedQuestionIndex = 0;
             }
         }
 
-        function loadQuizIntoBuilder(quizId) {
-            const quiz = quizzesCache.find((q) => String(q.id) === String(quizId));
-            if (!quiz) {
-                resetQuizBuilderForm();
+        function hydrateStateFromApi(config) {
+            const styleEntries = Object.entries(config.styles || {});
+            state = {
+                quiz_key: config.quiz_key || 'homeschool_style',
+                title: config.title || '',
+                description: config.description || '',
+                styles: styleEntries.map(([key, profile]) => ({
+                    uid: createUid('style'),
+                    key,
+                    title: profile.title || '',
+                    summary: profile.summary || '',
+                    strengthsText: Array.isArray(profile.strengths) ? profile.strengths.join('\n') : '',
+                })),
+                questions: [],
+                selectedQuestionIndex: 0,
+            };
+
+            if (!state.styles.length) {
+                state.styles.push(defaultStyle(0));
+            }
+
+            const styleUidByKey = {};
+            state.styles.forEach((style) => {
+                styleUidByKey[style.key] = style.uid;
+            });
+
+            const firstStyleUid = state.styles[0].uid;
+            state.questions = (config.questions || []).map((question, qIndex) => ({
+                id: question.id || `q${qIndex + 1}`,
+                question: question.question || '',
+                options: (question.options || []).map((option, oIndex) => ({
+                    key: option.key || `q${qIndex + 1}_opt${oIndex + 1}`,
+                    text: option.text || '',
+                    styleUid: styleUidByKey[option.style] || firstStyleUid,
+                })),
+            }));
+
+            normalizeStatePointers();
+            renderAll();
+        }
+
+        function renderBasicInfo() {
+            document.getElementById('quizTitle').value = state.title;
+            document.getElementById('quizDescription').value = state.description;
+        }
+
+        function renderStyles() {
+            const list = document.getElementById('styleList');
+            list.innerHTML = '';
+
+            state.styles.forEach((style, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'style-card';
+                wrapper.innerHTML = `
+                    <div class="style-card-head">
+                        <div class="style-title">Style ${index + 1}</div>
+                        <button class="small-btn danger" data-remove-style="${style.uid}" ${state.styles.length <= 1 ? 'disabled' : ''}>
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label>Style Key</label>
+                        <input type="text" data-style-key="${style.uid}" value="${style.key}">
+                    </div>
+                    <div class="form-group">
+                        <label>Result Title</label>
+                        <input type="text" data-style-title="${style.uid}" value="${style.title}">
+                    </div>
+                    <div class="form-group">
+                        <label>Result Summary</label>
+                        <textarea data-style-summary="${style.uid}">${style.summary}</textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Strengths (1 per line)</label>
+                        <textarea data-style-strengths="${style.uid}">${style.strengthsText}</textarea>
+                    </div>
+                `;
+                list.appendChild(wrapper);
+            });
+
+            list.querySelectorAll('[data-remove-style]').forEach((btn) => {
+                btn.addEventListener('click', () => removeStyle(btn.getAttribute('data-remove-style')));
+            });
+            list.querySelectorAll('[data-style-key]').forEach((input) => {
+                input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-key'), 'key', input.value));
+            });
+            list.querySelectorAll('[data-style-title]').forEach((input) => {
+                input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-title'), 'title', input.value));
+            });
+            list.querySelectorAll('[data-style-summary]').forEach((input) => {
+                input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-summary'), 'summary', input.value));
+            });
+            list.querySelectorAll('[data-style-strengths]').forEach((input) => {
+                input.addEventListener('input', () => updateStyleField(input.getAttribute('data-style-strengths'), 'strengthsText', input.value));
+            });
+        }
+
+        function renderQuestionList() {
+            const list = document.getElementById('questionList');
+            list.innerHTML = '';
+
+            state.questions.forEach((question, index) => {
+                const item = document.createElement('div');
+                item.className = `question-item ${index === state.selectedQuestionIndex ? 'active' : ''}`;
+                item.innerHTML = `
+                    <strong>${index + 1}. ${question.id || 'question'}</strong>
+                    <span>${question.question || 'No question text yet'}</span>
+                `;
+                item.addEventListener('click', () => {
+                    state.selectedQuestionIndex = index;
+                    renderQuestionList();
+                    renderQuestionEditor();
+                });
+                list.appendChild(item);
+            });
+        }
+
+        function renderQuestionEditor() {
+            const question = getSelectedQuestion();
+            const optionRows = document.getElementById('optionRows');
+
+            if (!question) {
+                document.getElementById('questionIdInput').value = '';
+                document.getElementById('questionTextInput').value = '';
+                optionRows.innerHTML = '';
                 return;
             }
 
-            quizBuilderState.quizId = quiz.id;
-            quizBuilderState.questions = JSON.parse(JSON.stringify(quiz.questions || []));
-            if (!quizBuilderState.questions.length) {
-                quizBuilderState.questions = [createDefaultQuestion()];
-            }
-            quizBuilderState.selectedQuestionIndex = 0;
+            document.getElementById('questionIdInput').value = question.id || '';
+            document.getElementById('questionTextInput').value = question.question || '';
 
-            document.getElementById('builderTitle').value = quiz.title || '';
-            document.getElementById('builderDescription').value = quiz.description || '';
-            document.getElementById('builderDocumentName').value = quiz.document_name || '';
-            document.getElementById('builderActive').checked = !!quiz.is_active;
+            const styleOptionsHtml = state.styles.map((style) => `
+                <option value="${style.uid}">${style.key} - ${style.title || style.key}</option>
+            `).join('');
 
-            renderBuilderQuestionList();
-            renderBuilderQuestionEditor();
+            optionRows.innerHTML = question.options.map((option, optionIndex) => `
+                <div class="option-row">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Option Key</label>
+                        <input type="text" data-option-key="${optionIndex}" value="${option.key || ''}">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Option Text</label>
+                        <input type="text" data-option-text="${optionIndex}" value="${option.text || ''}">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Mapped Style</label>
+                        <select data-option-style="${optionIndex}">${styleOptionsHtml}</select>
+                    </div>
+                    <button class="small-btn danger" data-remove-option="${optionIndex}" ${question.options.length <= 2 ? 'disabled' : ''}>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            optionRows.querySelectorAll('[data-option-style]').forEach((select) => {
+                const idx = Number(select.getAttribute('data-option-style'));
+                const value = question.options[idx].styleUid;
+                select.value = value;
+                select.addEventListener('change', () => {
+                    question.options[idx].styleUid = select.value;
+                });
+            });
+
+            optionRows.querySelectorAll('[data-option-key]').forEach((input) => {
+                input.addEventListener('input', () => {
+                    const idx = Number(input.getAttribute('data-option-key'));
+                    question.options[idx].key = input.value;
+                });
+            });
+
+            optionRows.querySelectorAll('[data-option-text]').forEach((input) => {
+                input.addEventListener('input', () => {
+                    const idx = Number(input.getAttribute('data-option-text'));
+                    question.options[idx].text = input.value;
+                    renderQuestionList();
+                });
+            });
+
+            optionRows.querySelectorAll('[data-remove-option]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const idx = Number(button.getAttribute('data-remove-option'));
+                    removeOption(idx);
+                });
+            });
         }
 
-        function renderBuilderQuestionList() {
-            const container = document.getElementById('builderQuestionList');
-            if (!container) return;
+        function renderAll() {
+            normalizeStatePointers();
+            renderBasicInfo();
+            renderStyles();
+            renderQuestionList();
+            renderQuestionEditor();
+        }
 
-            container.innerHTML = '';
-            quizBuilderState.questions.forEach((question, index) => {
-                const row = document.createElement('div');
-                row.className = `question-row-compact ${index === quizBuilderState.selectedQuestionIndex ? 'active' : ''}`;
+        function setStatus(text) {
+            document.getElementById('statusLine').textContent = text;
+        }
 
-                const title = document.createElement('div');
-                title.className = 'question-row-compact-title';
-                title.textContent = question.question || `Question ${index + 1}`;
+        function updateStyleField(uid, field, value) {
+            const style = state.styles.find((item) => item.uid === uid);
+            if (!style) return;
+            style[field] = value;
+            renderQuestionEditor();
+        }
 
-                const meta = document.createElement('div');
-                meta.className = 'question-row-compact-meta';
-                meta.textContent = `${question.options?.length || 0} options`;
+        function addStyle() {
+            const nextIndex = state.styles.length;
+            const style = defaultStyle(nextIndex);
+            style.key = `style_${nextIndex + 1}`;
+            state.styles.push(style);
+            renderAll();
+        }
 
-                row.appendChild(title);
-                row.appendChild(meta);
-                row.addEventListener('click', () => {
-                    applyBuilderQuestionChanges();
-                    quizBuilderState.selectedQuestionIndex = index;
-                    renderBuilderQuestionList();
-                    renderBuilderQuestionEditor();
+        function removeStyle(uid) {
+            if (state.styles.length <= 1) {
+                showWarning('At least one style is required.');
+                return;
+            }
+
+            const fallback = state.styles.find((item) => item.uid !== uid);
+            if (!fallback) return;
+
+            state.questions.forEach((question) => {
+                question.options.forEach((option) => {
+                    if (option.styleUid === uid) {
+                        option.styleUid = fallback.uid;
+                    }
+                });
+            });
+
+            state.styles = state.styles.filter((item) => item.uid !== uid);
+            renderAll();
+        }
+
+        function addQuestion() {
+            const firstStyleUid = state.styles[0] ? state.styles[0].uid : null;
+            const question = defaultQuestion(state.questions.length, firstStyleUid);
+            state.questions.push(question);
+            state.selectedQuestionIndex = state.questions.length - 1;
+            renderAll();
+        }
+
+        function deleteQuestion() {
+            if (state.questions.length <= 1) {
+                showWarning('At least one question is required.');
+                return;
+            }
+            state.questions.splice(state.selectedQuestionIndex, 1);
+            state.selectedQuestionIndex = Math.max(0, state.selectedQuestionIndex - 1);
+            renderAll();
+        }
+
+        function moveQuestion(direction) {
+            const from = state.selectedQuestionIndex;
+            const to = from + direction;
+            if (to < 0 || to >= state.questions.length) return;
+
+            const tmp = state.questions[from];
+            state.questions[from] = state.questions[to];
+            state.questions[to] = tmp;
+            state.selectedQuestionIndex = to;
+            renderAll();
+        }
+
+        function addOption() {
+            const question = getSelectedQuestion();
+            if (!question) return;
+            const styleUid = state.styles[0] ? state.styles[0].uid : null;
+            question.options.push(defaultOption(question.id || `q${state.selectedQuestionIndex + 1}`, question.options.length, styleUid));
+            renderQuestionEditor();
+        }
+
+        function removeOption(index) {
+            const question = getSelectedQuestion();
+            if (!question) return;
+            if (question.options.length <= 2) {
+                showWarning('Each question needs at least 2 options.');
+                return;
+            }
+            question.options.splice(index, 1);
+            renderQuestionEditor();
+        }
+
+        function buildPayloadFromState() {
+            const title = (state.title || '').trim();
+            const description = (state.description || '').trim();
+            if (!title) {
+                throw new Error('Quiz title is required.');
+            }
+            if (!description) {
+                throw new Error('Quiz description is required.');
+            }
+
+            const styles = {};
+            const styleKeyByUid = {};
+
+            state.styles.forEach((style, idx) => {
+                const finalKey = sanitizeKey(style.key, `style_${idx + 1}`);
+                if (styles[finalKey]) {
+                    throw new Error(`Duplicate style key: ${finalKey}`);
+                }
+
+                const styleTitle = String(style.title || '').trim();
+                const styleSummary = String(style.summary || '').trim();
+                const strengths = String(style.strengthsText || '')
+                    .split('\n')
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+
+                if (!styleTitle) {
+                    throw new Error(`Style title missing for ${finalKey}`);
+                }
+                if (!styleSummary) {
+                    throw new Error(`Style summary missing for ${finalKey}`);
+                }
+                if (strengths.length === 0) {
+                    throw new Error(`Please add at least one strength for ${finalKey}`);
+                }
+
+                styleKeyByUid[style.uid] = finalKey;
+                styles[finalKey] = {
+                    title: styleTitle,
+                    summary: styleSummary,
+                    strengths,
+                };
+            });
+
+            const questionIds = new Set();
+            const questions = state.questions.map((question, questionIndex) => {
+                const questionId = sanitizeKey(question.id, `q${questionIndex + 1}`);
+                if (questionIds.has(questionId)) {
+                    throw new Error(`Duplicate question id: ${questionId}`);
+                }
+                questionIds.add(questionId);
+
+                const questionText = String(question.question || '').trim();
+                if (!questionText) {
+                    throw new Error(`Question text missing for ${questionId}`);
+                }
+
+                const optionKeys = new Set();
+                const options = (question.options || []).map((option, optionIndex) => {
+                    const optionKey = sanitizeKey(option.key, `${questionId}_opt${optionIndex + 1}`);
+                    if (optionKeys.has(optionKey)) {
+                        throw new Error(`Duplicate option key in ${questionId}: ${optionKey}`);
+                    }
+                    optionKeys.add(optionKey);
+
+                    const optionText = String(option.text || '').trim();
+                    if (!optionText) {
+                        throw new Error(`Option text missing in ${questionId}`);
+                    }
+
+                    const mappedStyle = styleKeyByUid[option.styleUid];
+                    if (!mappedStyle) {
+                        throw new Error(`Invalid style mapping in ${questionId}`);
+                    }
+
+                    return {
+                        key: optionKey,
+                        text: optionText,
+                        style: mappedStyle,
+                    };
                 });
 
-                container.appendChild(row);
-            });
-        }
-
-        function updateCorrectAnswerSelect(optionValues, preferred) {
-            const select = document.getElementById('builderCorrectAnswer');
-            select.innerHTML = '';
-
-            optionValues.forEach((value) => {
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = value;
-                select.appendChild(option);
-            });
-
-            if (preferred && optionValues.includes(preferred)) {
-                select.value = preferred;
-            } else if (optionValues.length > 0) {
-                select.value = optionValues[0];
-            }
-        }
-
-        function createBuilderOptionRow(value = '') {
-            const row = document.createElement('div');
-            row.className = 'option-row-builder';
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'builder-option-input';
-            input.placeholder = 'Option text';
-            input.value = value;
-            input.addEventListener('input', syncCorrectAnswerOptionsFromRows);
-
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'small-btn danger';
-            removeBtn.textContent = 'Remove';
-            removeBtn.addEventListener('click', () => {
-                row.remove();
-                if (!document.querySelector('#builderOptionRows .option-row-builder')) {
-                    document.getElementById('builderOptionRows').appendChild(createBuilderOptionRow(''));
+                if (options.length < 2) {
+                    throw new Error(`Question ${questionId} must have at least 2 options.`);
                 }
-                syncCorrectAnswerOptionsFromRows();
+
+                return {
+                    id: questionId,
+                    question: questionText,
+                    options,
+                };
             });
 
-            row.appendChild(input);
-            row.appendChild(removeBtn);
-            return row;
+            return {
+                quiz_key: 'homeschool_style',
+                title,
+                description,
+                styles,
+                questions,
+            };
         }
 
-        function syncCorrectAnswerOptionsFromRows() {
-            const optionValues = Array.from(document.querySelectorAll('.builder-option-input'))
-                .map((el) => (el.value || '').trim())
-                .filter(Boolean);
-            const current = document.getElementById('builderCorrectAnswer').value;
-            updateCorrectAnswerSelect(optionValues, current);
-        }
-
-        function renderBuilderQuestionEditor() {
-            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
-            if (!question) {
-                document.getElementById('builderQuestionText').value = '';
-                document.getElementById('builderOptionRows').innerHTML = '';
-                updateCorrectAnswerSelect([], '');
-                return;
-            }
-
-            document.getElementById('builderQuestionText').value = question.question || '';
-
-            const optionRows = document.getElementById('builderOptionRows');
-            optionRows.innerHTML = '';
-            const options = Array.isArray(question.options) && question.options.length ? question.options : [''];
-            options.forEach((opt) => optionRows.appendChild(createBuilderOptionRow(opt)));
-
-            syncCorrectAnswerOptionsFromRows();
-            const correct = question.correct_answer || '';
-            if (correct) {
-                const select = document.getElementById('builderCorrectAnswer');
-                if (Array.from(select.options).some((o) => o.value === correct)) {
-                    select.value = correct;
-                }
-            }
-        }
-
-        function applyBuilderQuestionChanges() {
-            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
-            if (!question) return true;
-
-            const questionText = (document.getElementById('builderQuestionText').value || '').trim();
-            const options = Array.from(document.querySelectorAll('.builder-option-input'))
-                .map((el) => (el.value || '').trim())
-                .filter(Boolean);
-            const uniqueOptions = [...new Set(options)];
-            const correctAnswer = (document.getElementById('builderCorrectAnswer').value || '').trim();
-
-            if (!questionText) {
-                showWarning('Question text is required');
-                return false;
-            }
-            if (uniqueOptions.length < 2) {
-                showWarning('Each question needs at least 2 options');
-                return false;
-            }
-            if (!correctAnswer || !uniqueOptions.includes(correctAnswer)) {
-                showWarning('Please select a valid correct answer');
-                return false;
-            }
-
-            question.question = questionText;
-            question.options = uniqueOptions;
-            question.correct_answer = correctAnswer;
-            question.explanation = question.explanation || '';
-
-            renderBuilderQuestionList();
-            return true;
-        }
-
-        function setHomeschoolStyleEditorValue(config) {
-            const editor = document.getElementById('homeschoolStyleConfigJson');
-            if (!editor) return;
-            editor.value = JSON.stringify(config || {}, null, 2);
-        }
-
-        async function loadHomeschoolStyleConfig(showToast = false) {
-            const editor = document.getElementById('homeschoolStyleConfigJson');
-            if (!editor) return;
-
-            editor.value = 'Loading...';
+        async function loadConfig(showToast = false) {
             try {
+                setStatus('Loading quiz config...');
                 const token = getAccessToken();
                 const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/config`, {
                     headers: {
@@ -1057,33 +932,27 @@
                 });
                 const data = await response.json();
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to load homeschool style quiz config');
+                    throw new Error(data.message || 'Failed to load config');
                 }
 
-                homeschoolStyleQuizConfig = data.quiz || {};
-                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
+                hydrateStateFromApi(data.quiz || {});
+                setStatus('Config loaded.');
                 if (showToast) {
-                    showSuccess('Homeschool style quiz config loaded');
+                    showSuccess('Homeschool quiz config loaded');
                 }
             } catch (error) {
-                editor.value = '';
-                showError(error.message || 'Failed to load homeschool style quiz config');
+                setStatus('Load failed.');
+                showError(error.message || 'Failed to load config');
             }
         }
 
-        async function saveHomeschoolStyleConfig() {
-            const editor = document.getElementById('homeschoolStyleConfigJson');
-            if (!editor) return;
-
-            let payload;
+        async function saveConfig() {
             try {
-                payload = JSON.parse(editor.value);
-            } catch (_) {
-                showError('Invalid JSON. Please fix syntax and try again.');
-                return;
-            }
+                state.title = document.getElementById('quizTitle').value;
+                state.description = document.getElementById('quizDescription').value;
+                const payload = buildPayloadFromState();
 
-            try {
+                setStatus('Saving quiz config...');
                 const token = getAccessToken();
                 const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/config`, {
                     method: 'PUT',
@@ -1093,22 +962,26 @@
                     },
                     body: JSON.stringify(payload)
                 });
+
                 const data = await response.json();
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to save homeschool style quiz config');
+                    throw new Error(data.message || 'Failed to save config');
                 }
 
-                homeschoolStyleQuizConfig = data.quiz || payload;
-                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
-                showSuccess(data.message || 'Homeschool style quiz updated');
+                hydrateStateFromApi(data.quiz || payload);
+                setStatus('Saved successfully.');
+                showSuccess('Homeschool quiz updated successfully');
             } catch (error) {
-                showError(error.message || 'Failed to save homeschool style quiz config');
+                setStatus('Save failed.');
+                showError(error.message || 'Failed to save config');
             }
         }
 
-        async function resetHomeschoolStyleConfig() {
-            if (!confirm('Reset homeschool style quiz to default config?')) return;
+        async function resetConfig() {
+            if (!confirm('Reset homeschool quiz to default config?')) return;
+
             try {
+                setStatus('Resetting config...');
                 const token = getAccessToken();
                 const response = await fetch(`${window.API_BASE_URL}/quiz/homeschool-style/admin/reset`, {
                     method: 'POST',
@@ -1118,591 +991,83 @@
                 });
                 const data = await response.json();
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to reset homeschool style quiz config');
+                    throw new Error(data.message || 'Failed to reset config');
                 }
 
-                homeschoolStyleQuizConfig = data.quiz || {};
-                setHomeschoolStyleEditorValue(homeschoolStyleQuizConfig);
-                showSuccess(data.message || 'Homeschool style quiz reset to default');
+                hydrateStateFromApi(data.quiz || {});
+                setStatus('Reset complete.');
+                showSuccess('Config reset to default');
             } catch (error) {
-                showError(error.message || 'Failed to reset homeschool style quiz config');
+                setStatus('Reset failed.');
+                showError(error.message || 'Failed to reset config');
             }
         }
 
-        // Run after deferred scripts are loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', verifyAdminAccess);
-        } else {
-            verifyAdminAccess();
-        }
-
-        // Set current date (if element exists)
-        const currentDateEl = document.getElementById('current-date');
-        if (currentDateEl) {
-            currentDateEl.textContent = new Date().toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-            });
-        }
-
-        // Tab switching
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all tabs
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-                // Add active class to clicked tab
-                button.classList.add('active');
-                const tabId = button.getAttribute('data-tab') + '-tab';
-                document.getElementById(tabId).classList.add('active');
-
-                // Load data based on tab
-                if (button.getAttribute('data-tab') === 'upload') {
-                    loadUploadedFiles();
-                } else if (button.getAttribute('data-tab') === 'generate') {
-                    loadDocuments();
-                } else if (button.getAttribute('data-tab') === 'builder') {
-                    loadQuizzes(true);
-                } else if (button.getAttribute('data-tab') === 'manage') {
-                    loadQuizzes(true);
-                } else if (button.getAttribute('data-tab') === 'homeschool-style') {
-                    loadHomeschoolStyleConfig();
-                }
-            });
-        });
-
-        // Drag and drop functionality
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.add('dragging');
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.remove('dragging');
-            });
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileUpload(files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileUpload(e.target.files[0]);
-            }
-        });
-
-        // Handle file upload
-        async function handleFileUpload(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const token = getAccessToken();
-                
-                if (!token) {
-                    showError('You are not authenticated. Please login again.');
-                    return;
-                }
-                
-                console.log('Starting file upload with token:', token.substring(0, 20) + '...');
-                console.log('File:', file.name, 'Size:', file.size, 'Type:', file.type);
-                
-                const response = await fetch(`${window.API_BASE_URL}/quiz/upload-document`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-
-                console.log('Response status:', response.status);
-                const data = await response.json();
-                console.log('Response data:', data);
-
-                if (response.ok) {
-                    showSuccess(data.message);
-                    loadUploadedFiles();
-                    await loadDocuments();
-                    fileInput.value = '';
-
-                    // Auto-switch to Generate Quiz tab
-                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    document.querySelector('[data-tab="generate"]').classList.add('active');
-                    document.getElementById('generate-tab').classList.add('active');
-
-                    // Pre-select the uploaded document
-                    const select = document.getElementById('documentSelect');
-                    if (data.filepath) {
-                        select.value = data.filepath;
-                    } else if (select.options.length > 1) {
-                        select.selectedIndex = select.options.length - 1;
-                    }
-                } else {
-                    showError(data.message || `Upload failed: ${response.status} ${response.statusText}`);
-                }
-            } catch (error) {
-                console.error('Upload error:', error);
-                showError('Upload failed: ' + error.message);
-            }
-        }
-
-        // Load uploaded files
-        async function loadUploadedFiles() {
-            try {
-                const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/uploaded-documents`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const documents = data.documents || [];
-                    
-                    if (documents.length === 0) {
-                        document.getElementById('uploadedFiles').innerHTML = '<h3>Recently Uploaded Documents</h3><p style="color: #718096;">No documents uploaded yet. Upload a document to get started</p>';
-                    } else {
-                        const filesHTML = `
-                            <h3>Recently Uploaded Documents</h3>
-                            ${documents.map((doc, index) => `
-                                <div class="file-item">
-                                    <div class="file-info">
-                                        <div class="file-icon">
-                                            <i class="fas fa-file"></i>
-                                        </div>
-                                        <div>
-                                            <strong>${doc.filename}</strong><br>
-                                            <small style="color: #718096;">${new Date(doc.uploaded_at).toLocaleDateString()}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        `;
-                        document.getElementById('uploadedFiles').innerHTML = filesHTML;
-                    }
-                } else {
-                    // Fallback for when endpoint doesn't exist yet
-                    document.getElementById('uploadedFiles').innerHTML = '<h3>Recently Uploaded Documents</h3><p style="color: #718096;">Upload a document to get started</p>';
-                }
-            } catch (error) {
-                document.getElementById('uploadedFiles').innerHTML = '<h3>Recently Uploaded Documents</h3><p style="color: #718096;">Upload a document to get started</p>';
-            }
-        }
-
-        // Load documents for quiz generation
-        async function loadDocuments() {
-            try {
-                const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/uploaded-documents`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const select = document.getElementById('documentSelect');
-                select.innerHTML = '<option value="">-- Select a document --</option>';
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const documents = data.documents || [];
-                    
-                    if (documents.length > 0) {
-                        documents.forEach(doc => {
-                            const option = document.createElement('option');
-                            option.value = doc.filepath;
-                            option.textContent = doc.filename;
-                            select.appendChild(option);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading documents:', error);
-            }
-        }
-
-        // Generate quiz form submission
-        document.getElementById('generateQuizForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const documentPath = document.getElementById('documentSelect').value;
-            const title = document.getElementById('quizTitle').value;
-            const description = document.getElementById('quizDescription').value;
-            const numQuestions = document.getElementById('numQuestions').value;
-
-            if (!documentPath) {
-                showWarning('Please select a document');
-                return;
-            }
-
-            try {
-                const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/generate-quiz`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        document_path: documentPath,
-                        title: title,
-                        description: description,
-                        num_questions: parseInt(numQuestions)
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showSuccess(data.message);
-                    document.getElementById('generateQuizForm').reset();
-                    // Switch to manage tab
-                    document.querySelector('[data-tab="manage"]').click();
-                } else {
-                    showError(data.message);
-                }
-            } catch (error) {
-                showError('Failed to generate quiz. Please try again.');
-            }
-        });
-
-        // Load quizzes
-        async function loadQuizzes(includeAll = false) {
-            try {
-                const token = getAccessToken();
-                const query = includeAll ? '?include_all=1' : '';
-                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes${query}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    quizzesCache = data.quizzes || [];
-                    displayQuizzes(quizzesCache);
-                    renderBuilderQuizSelect();
-                } else {
-                    showError('Failed to load quizzes');
-                }
-            } catch (error) {
-                showError('Failed to load quizzes');
-            }
-        }
-
-        function displayQuizzes(quizzes) {
-            const quizList = document.getElementById('quizList');
-
-            if (!quizzes || quizzes.length === 0) {
-                quizList.innerHTML = '<p style="color: #718096;">No quizzes available. Generate one from the "Generate Quiz" tab.</p>';
-                return;
-            }
-
-            quizList.innerHTML = quizzes.map(quiz => `
-                <div class="quiz-card" id="quiz-card-${quiz.id}">
-                    <div class="quiz-header">
-                        <div>
-                            <div class="quiz-title">${quiz.title}</div>
-                            <div class="quiz-meta">
-                                ${quiz.description || 'No description'}
-                            </div>
-                            <div class="quiz-meta">
-                                <i class="fas fa-file"></i> ${quiz.document_name || 'N/A'}
-                            </div>
-                        </div>
-                        <div class="quiz-actions">
-                            <button class="edit-quiz-btn" onclick="openQuizBuilderEdit(${quiz.id})" title="Edit Quiz">
-                                <i class="fas fa-pen"></i> Edit
-                            </button>
-                            <button class="toggle-quiz-btn" onclick="toggleQuizStatus(${quiz.id})" title="Toggle Status">
-                                ${quiz.is_active ? '<i class="fas fa-eye-slash"></i> Deactivate' : '<i class="fas fa-eye"></i> Activate'}
-                            </button>
-                            <button class="delete-quiz-btn" onclick="deleteQuiz(${quiz.id})" title="Delete Quiz">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                    <div class="quiz-stats">
-                        <div class="quiz-stat">
-                            <strong>${quiz.questions.length}</strong> Questions
-                        </div>
-                        <div class="quiz-stat">
-                            Created: ${new Date(quiz.created_at).toLocaleDateString()}
-                        </div>
-                        <div class="quiz-stat">
-                            Status: <strong style="color: ${quiz.is_active ? '#28a745' : '#dc3545'}">${quiz.is_active ? 'Active' : 'Inactive'}</strong>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function openQuizBuilderEdit(quizId) {
-            const tabBtn = document.querySelector('[data-tab="builder"]');
-            if (tabBtn) tabBtn.click();
-
-            const select = document.getElementById('builderQuizSelect');
-            if (select) {
-                select.value = String(quizId);
-            }
-            loadQuizIntoBuilder(quizId);
-        }
-
-        async function toggleQuizStatus(quizId) {
-            const quiz = quizzesCache.find((q) => q.id === quizId);
-            if (!quiz) return;
-
-            try {
-                const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes/${quizId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        is_active: !quiz.is_active
-                    })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    showSuccess(data.message || 'Quiz status updated');
-                    loadQuizzes(true);
-                } else {
-                    showError(data.message || 'Failed to update status');
-                }
-            } catch (error) {
-                showError('Failed to update status');
-            }
-        }
-
-        async function saveQuizFromBuilder() {
-            if (!applyBuilderQuestionChanges()) return;
-
-            const title = (document.getElementById('builderTitle').value || '').trim();
-            const description = (document.getElementById('builderDescription').value || '').trim();
-            const documentName = (document.getElementById('builderDocumentName').value || '').trim();
-            const isActive = document.getElementById('builderActive').checked;
-
-            if (!title) {
-                showWarning('Quiz title is required');
-                return;
-            }
-
-            const payload = {
-                title: title,
-                description: description,
-                document_name: documentName,
-                is_active: isActive,
-                questions: quizBuilderState.questions
-            };
-
-            const isEditing = !!quizBuilderState.quizId;
-            const endpoint = isEditing
-                ? `${window.API_BASE_URL}/quiz/quizzes/${quizBuilderState.quizId}`
-                : `${window.API_BASE_URL}/quiz/quizzes`;
-            const method = isEditing ? 'PUT' : 'POST';
-
-            try {
-                const token = getAccessToken();
-                const response = await fetch(endpoint, {
-                    method,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    showSuccess(data.message || (isEditing ? 'Quiz updated' : 'Quiz created'));
-                    await loadQuizzes(true);
-                    if (data.quiz && data.quiz.id) {
-                        quizBuilderState.quizId = data.quiz.id;
-                        const select = document.getElementById('builderQuizSelect');
-                        if (select) {
-                            select.value = String(data.quiz.id);
-                        }
-                        loadQuizIntoBuilder(data.quiz.id);
-                    }
-                } else {
-                    showError(data.message || 'Failed to save quiz');
-                }
-            } catch (error) {
-                showError('Failed to save quiz');
-            }
-        }
-
-        // Delete a quiz
-        async function deleteQuiz(quizId) {
-            if (!confirm('Are you sure you want to delete this quiz? This cannot be undone.')) return;
-
-            try {
-                const token = getAccessToken();
-                const response = await fetch(`${window.API_BASE_URL}/quiz/quizzes/${quizId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    showSuccess(data.message || 'Quiz deleted successfully');
-                    await loadQuizzes(true);
-                } else {
-                    showError(data.message || 'Failed to delete quiz');
-                }
-            } catch (error) {
-                console.error('Delete error:', error);
-                showError('Failed to delete quiz.');
-            }
-        }
-
-        function addBuilderQuestion() {
-            if (!applyBuilderQuestionChanges()) return;
-            quizBuilderState.questions.push(createDefaultQuestion());
-            quizBuilderState.selectedQuestionIndex = quizBuilderState.questions.length - 1;
-            renderBuilderQuestionList();
-            renderBuilderQuestionEditor();
-        }
-
-        function duplicateBuilderQuestion() {
-            const question = quizBuilderState.questions[quizBuilderState.selectedQuestionIndex];
-            if (!question) return;
-            if (!applyBuilderQuestionChanges()) return;
-
-            const copy = JSON.parse(JSON.stringify(question));
-            quizBuilderState.questions.splice(quizBuilderState.selectedQuestionIndex + 1, 0, copy);
-            quizBuilderState.selectedQuestionIndex += 1;
-            renderBuilderQuestionList();
-            renderBuilderQuestionEditor();
-        }
-
-        function moveBuilderQuestion(direction) {
-            if (!applyBuilderQuestionChanges()) return;
-            const from = quizBuilderState.selectedQuestionIndex;
-            const to = from + direction;
-            if (from < 0 || to < 0 || to >= quizBuilderState.questions.length) return;
-
-            const tmp = quizBuilderState.questions[from];
-            quizBuilderState.questions[from] = quizBuilderState.questions[to];
-            quizBuilderState.questions[to] = tmp;
-            quizBuilderState.selectedQuestionIndex = to;
-            renderBuilderQuestionList();
-        }
-
-        function deleteBuilderQuestion() {
-            if (quizBuilderState.selectedQuestionIndex < 0) return;
-            if (quizBuilderState.questions.length <= 1) {
-                showWarning('At least one question is required');
-                return;
-            }
-
-            quizBuilderState.questions.splice(quizBuilderState.selectedQuestionIndex, 1);
-            quizBuilderState.selectedQuestionIndex = Math.max(0, quizBuilderState.selectedQuestionIndex - 1);
-            renderBuilderQuestionList();
-            renderBuilderQuestionEditor();
-        }
-
-        function bindQuizBuilderEvents() {
-            const builderSelect = document.getElementById('builderQuizSelect');
-            builderSelect.addEventListener('change', () => {
-                const selectedId = builderSelect.value;
-                if (!selectedId) {
-                    resetQuizBuilderForm();
-                    return;
-                }
-                loadQuizIntoBuilder(selectedId);
+        function bindEvents() {
+            document.getElementById('quizTitle').addEventListener('input', (event) => {
+                state.title = event.target.value;
             });
 
-            const newQuizBtn = document.getElementById('newQuizBtn');
-            const addQuestionBtn = document.getElementById('addQuestionBtn');
-            const deleteQuestionBtn = document.getElementById('deleteQuestionBtn');
-            const addOptionBtn = document.getElementById('addOptionBtn');
-            const saveBuilderBtn = document.getElementById('saveBuilderBtn');
-            const resetBuilderBtn = document.getElementById('resetBuilderBtn');
-            const reloadHomeschoolStyleBtn = document.getElementById('reloadHomeschoolStyleBtn');
-            const saveHomeschoolStyleBtn = document.getElementById('saveHomeschoolStyleBtn');
-            const resetHomeschoolStyleBtn = document.getElementById('resetHomeschoolStyleBtn');
-
-            if (newQuizBtn) newQuizBtn.addEventListener('click', resetQuizBuilderForm);
-            if (addQuestionBtn) addQuestionBtn.addEventListener('click', addBuilderQuestion);
-            if (deleteQuestionBtn) deleteQuestionBtn.addEventListener('click', deleteBuilderQuestion);
-            if (addOptionBtn) addOptionBtn.addEventListener('click', () => {
-                document.getElementById('builderOptionRows').appendChild(createBuilderOptionRow(''));
-                syncCorrectAnswerOptionsFromRows();
+            document.getElementById('quizDescription').addEventListener('input', (event) => {
+                state.description = event.target.value;
             });
-            if (saveBuilderBtn) saveBuilderBtn.addEventListener('click', saveQuizFromBuilder);
-            if (resetBuilderBtn) resetBuilderBtn.addEventListener('click', resetQuizBuilderForm);
-            if (reloadHomeschoolStyleBtn) reloadHomeschoolStyleBtn.addEventListener('click', () => loadHomeschoolStyleConfig(true));
-            if (saveHomeschoolStyleBtn) saveHomeschoolStyleBtn.addEventListener('click', saveHomeschoolStyleConfig);
-            if (resetHomeschoolStyleBtn) resetHomeschoolStyleBtn.addEventListener('click', resetHomeschoolStyleConfig);
+
+            document.getElementById('questionIdInput').addEventListener('input', (event) => {
+                const question = getSelectedQuestion();
+                if (!question) return;
+                question.id = event.target.value;
+                renderQuestionList();
+            });
+
+            document.getElementById('questionTextInput').addEventListener('input', (event) => {
+                const question = getSelectedQuestion();
+                if (!question) return;
+                question.question = event.target.value;
+                renderQuestionList();
+            });
+
+            document.getElementById('reloadBtn').addEventListener('click', () => loadConfig(true));
+            document.getElementById('saveBtn').addEventListener('click', saveConfig);
+            document.getElementById('resetBtn').addEventListener('click', resetConfig);
+
+            document.getElementById('addStyleBtn').addEventListener('click', addStyle);
+
+            document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
+            document.getElementById('deleteQuestionBtn').addEventListener('click', deleteQuestion);
+            document.getElementById('moveQuestionUpBtn').addEventListener('click', () => moveQuestion(-1));
+            document.getElementById('moveQuestionDownBtn').addEventListener('click', () => moveQuestion(1));
+
+            document.getElementById('addOptionBtn').addEventListener('click', addOption);
         }
 
-        // Load initial data
-        bindQuizBuilderEvents();
-        resetQuizBuilderForm();
-        loadUploadedFiles();
+        function initMobileMenu() {
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            const body = document.body;
+            if (!mobileToggle || !sidebar || !overlay) return;
 
-        // Mobile menu functionality
-        const mobileToggle = document.querySelector('.mobile-menu-toggle');
-        const sidebar = document.querySelector('.sidebar');
-        const overlay = document.querySelector('.mobile-overlay');
-        const body = document.body;
+            function toggleMobileMenu() {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+                body.classList.toggle('menu-open');
 
-        function toggleMobileMenu() {
-            sidebar.classList.toggle('mobile-open');
-            overlay.classList.toggle('active');
-            body.classList.toggle('menu-open');
-            
-            // Toggle icon between bars and times
-            const icon = mobileToggle.querySelector('i');
-            if (sidebar.classList.contains('mobile-open')) {
-                icon.className = 'fas fa-times';
-            } else {
-                icon.className = 'fas fa-bars';
+                const icon = mobileToggle.querySelector('i');
+                if (icon) {
+                    icon.className = sidebar.classList.contains('mobile-open') ? 'fas fa-times' : 'fas fa-bars';
+                }
             }
-        }
 
-        if (mobileToggle) {
             mobileToggle.addEventListener('click', toggleMobileMenu);
-        }
-        
-        if (overlay) {
             overlay.addEventListener('click', toggleMobileMenu);
         }
 
-        // Update current date
-        const currentDateElement = document.getElementById('current-date');
-        if (currentDateElement) {
-            currentDateElement.textContent = new Date().toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            });
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            verifyAdminAccess();
+            bindEvents();
+            initMobileMenu();
+            loadConfig();
+        });
     </script>
 </body>
 </html>
