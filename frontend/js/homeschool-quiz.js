@@ -58,11 +58,17 @@
     }
 
     async function captureLeadAndRedirect(email) {
+        const token = getStoredAccessToken();
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${apiBaseUrl}/quiz/homeschool-style/capture-lead`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify({
                 submission_token: submissionToken,
                 email,
@@ -168,6 +174,17 @@
             }
 
             submissionToken = data.submission_token;
+            const token = getStoredAccessToken();
+            if (token) {
+                setStatus("Quiz complete. Opening your personalized result...", "success");
+                try {
+                    await captureLeadAndRedirect("");
+                    return;
+                } catch (_) {
+                    // Fallback to explicit email if token-based auto fetch fails.
+                }
+            }
+
             const signedInEmail = await getSignedInUserEmail();
             if (signedInEmail) {
                 setStatus("Quiz complete. Opening your personalized result...", "success");

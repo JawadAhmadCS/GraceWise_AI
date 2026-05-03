@@ -4,7 +4,7 @@ import secrets
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
 from sqlalchemy import func
 
 from models import User, db, HomeschoolStyleSubmission
@@ -145,6 +145,19 @@ def capture_homeschool_style_lead():
 
     if not submission_token:
         return jsonify({"message": "submission_token is required."}), 400
+
+    if not email:
+        try:
+            verify_jwt_in_request(optional=True)
+            user_id = get_jwt_identity()
+            if user_id:
+                if isinstance(user_id, str):
+                    user_id = int(user_id)
+                user = User.query.get(user_id)
+                if user and user.email:
+                    email = user.email.strip().lower()
+        except Exception:
+            email = ""
 
     if not email or not EMAIL_REGEX.match(email):
         return jsonify({"message": "Please provide a valid email address."}), 400
