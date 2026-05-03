@@ -5,6 +5,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from sqlalchemy import func
 
 from models import User, db, HomeschoolStyleSubmission
 from services.homeschool_style_quiz import (
@@ -202,4 +203,36 @@ def get_homeschool_style_result():
 
     return jsonify({
         "result": submission.to_result_dict(),
+    }), 200
+
+
+@homeschool_style_quiz_bp.route("/homeschool-style/my-results", methods=["GET"])
+@jwt_required()
+def get_homeschool_style_my_results():
+    user = _current_user()
+    if not user:
+        return jsonify({"message": "User not found."}), 404
+
+    email = (user.email or "").strip().lower()
+    if not email:
+        return jsonify({"results": [], "count": 0}), 200
+
+    submissions = (
+        HomeschoolStyleSubmission.query
+        .filter(
+            func.lower(HomeschoolStyleSubmission.email) == email,
+            HomeschoolStyleSubmission.lead_captured_at.isnot(None),
+        )
+        .order_by(
+            HomeschoolStyleSubmission.lead_captured_at.desc(),
+            HomeschoolStyleSubmission.created_at.desc(),
+        )
+        .all()
+    )
+
+    results = [submission.to_result_dict() for submission in submissions]
+    return jsonify({
+        "results": results,
+        "count": len(results),
+        "latest": results[0] if results else None,
     }), 200

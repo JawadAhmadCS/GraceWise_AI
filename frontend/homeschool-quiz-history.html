@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - Gracewise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/parent-views.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <script src="js/config.js"></script>
+    <script src="js/parent-nav.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/notifications.js" defer></script>
+    <script src="js/homeschool-quiz-history.js" defer></script>
+    <style>
+        .history-card {
+            background: #fff;
+            border: 1px solid #e7e4dc;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .history-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .history-head h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #243447;
+        }
+        .history-date {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        .history-summary {
+            color: #334155;
+            margin: 10px 0;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+        }
+        .score-pill {
+            background: #f8f6f1;
+            border: 1px solid #ece5d7;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            color: #364152;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .empty-box {
+            background: #fff;
+            border: 1px dashed #d4cec2;
+            border-radius: 14px;
+            padding: 26px;
+            text-align: center;
+            color: #6b7280;
+        }
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0 18px;
+            flex-wrap: wrap;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #b59c61;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-nav="learning">
+    <div class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="mobile-overlay"></div>
+
+    <div class="sidebar">
+        <div class="logo">
+            <img src="assest/logo/main_logo.png" alt="Gracewise Logo">
+        </div>
+        <nav class="nav-menu" id="parent-nav-menu"></nav>
+        <div class="sidebar-bottom">
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-item" onclick="auth.logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search">
+            </div>
+            <div class="header-right">
+                <div class="avatar" id="avatarBtn">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="page-intro">
+                <h1>Quizzes & Practice</h1>
+                <p>Your homeschool quiz results are saved to your account by email match.</p>
+            </div>
+
+            <div class="action-row">
+                <a class="cta-btn" href="homeschool-quiz.html"><i class="fas fa-pen"></i> Take / Retake Quiz</a>
+                <a class="cta-btn" href="learning.html" style="background:#475569;"><i class="fas fa-arrow-left"></i> Back to Learning</a>
+            </div>
+
+            <div id="quizResultState" class="empty-box">Loading your quiz results...</div>
+            <div id="quizResultList"></div>
+        </div>
+    </div>
+</body>
+</html>

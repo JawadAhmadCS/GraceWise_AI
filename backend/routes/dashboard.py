@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, User, Child, DevotionalProgress, Planner, Quiz, QuizResult, Notification, AiSession, AiChatMessage
+from models import db, User, Child, DevotionalProgress, Planner, Quiz, QuizResult, Notification, AiSession, AiChatMessage, HomeschoolStyleSubmission
 from datetime import datetime, timedelta
 from sqlalchemy import func, and_
 from utils.access_control import get_effective_tier, get_tool_access, tier_required
@@ -109,8 +109,19 @@ def student_dashboard_stats():
         if not user:
             return jsonify({"message": "User not found"}), 404
         
-        # Total Quiz Attempts
-        total_quiz_attempts = QuizResult.query.filter_by(user_id=user_id).count()
+        # Total Quiz Attempts (regular quizzes + homeschool style quiz by matched email)
+        regular_quiz_attempts = QuizResult.query.filter_by(user_id=user_id).count()
+        homeschool_attempts = 0
+        if user.email:
+            homeschool_attempts = (
+                HomeschoolStyleSubmission.query
+                .filter(
+                    func.lower(HomeschoolStyleSubmission.email) == user.email.lower(),
+                    HomeschoolStyleSubmission.lead_captured_at.isnot(None),
+                )
+                .count()
+            )
+        total_quiz_attempts = regular_quiz_attempts + homeschool_attempts
         
         # Average Score from Quizzes
         quiz_results = QuizResult.query.filter_by(user_id=user_id).all()
@@ -224,7 +235,20 @@ def student_progress_summary():
         if not user:
             return jsonify({"message": "User not found"}), 404
 
-        quiz_attempts = QuizResult.query.filter_by(user_id=user_id).count()
+        regular_quiz_attempts = QuizResult.query.filter_by(user_id=user_id).count()
+        homeschool_submissions = []
+        if user.email:
+            homeschool_submissions = (
+                HomeschoolStyleSubmission.query
+                .filter(
+                    func.lower(HomeschoolStyleSubmission.email) == user.email.lower(),
+                    HomeschoolStyleSubmission.lead_captured_at.isnot(None),
+                )
+                .order_by(HomeschoolStyleSubmission.lead_captured_at.desc(), HomeschoolStyleSubmission.created_at.desc())
+                .all()
+            )
+        homeschool_attempts = len(homeschool_submissions)
+        quiz_attempts = regular_quiz_attempts + homeschool_attempts
         quiz_results = QuizResult.query.filter_by(user_id=user_id).order_by(QuizResult.completed_at.desc()).all()
 
         average_score = 0
@@ -256,7 +280,7 @@ def student_progress_summary():
             for subject, avg_score in subject_performance
         ]
 
-        recent_activities = db.session.query(
+        recent_quiz_activities = db.session.query(
             Quiz.title,
             QuizResult.score,
             QuizResult.completed_at
@@ -270,8 +294,30 @@ def student_progress_summary():
                 "score": round(score, 2) if score is not None else 0,
                 "completed_at": completed_at.isoformat() if completed_at else None
             }
-            for title, score, completed_at in recent_activities
+            for title, score, completed_at in recent_quiz_activities
         ]
+
+        homeschool_activity_data = []
+        for submission in homeschool_submissions[:6]:
+            breakdown = submission.score_breakdown or {}
+            total_points = sum((breakdown or {}).values())
+            top_points = max((breakdown or {}).values()) if breakdown else 0
+            score_percent = round((top_points / total_points) * 100, 2) if total_points > 0 else 0
+            homeschool_activity_data.append({
+                "title": "Homeschool Style Quiz",
+                "score": score_percent,
+                "completed_at": (
+                    submission.lead_captured_at.isoformat()
+                    if submission.lead_captured_at
+                    else (submission.created_at.isoformat() if submission.created_at else None)
+                ),
+            })
+
+        activity_data = sorted(
+            activity_data + homeschool_activity_data,
+            key=lambda item: item.get("completed_at") or "",
+            reverse=True,
+        )[:6]
 
         return jsonify({
             "quiz_attempts": quiz_attempts,

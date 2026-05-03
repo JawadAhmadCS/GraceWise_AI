@@ -28,6 +28,7 @@ class HomeschoolStyleSubmission(db.Model):
 
     def to_result_dict(self):
         return {
+            "submission_token": self.submission_token,
             "result_key": self.result_key,
             "result_title": self.result_title,
             "result_summary": self.result_summary,

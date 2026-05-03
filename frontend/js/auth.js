@@ -211,6 +211,7 @@ class AuthSystem {
             'child-profile.html',
             'curriculum.html',
             'planner.html',
+            'homeschool-quiz-history.html',
             'ai-assistant.html',
             'devotional.html',
             'progress.html',
