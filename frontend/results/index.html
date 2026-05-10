@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Homeschool Style Result | GraceWise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f1eb;
+            --ink: #1f3347;
+            --accent: #9e6a2b;
+            --card: #fffdf8;
+            --success: #0f766e;
+            --error: #b42318;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 85% 10%, #fce8c8 0, transparent 32%),
+                radial-gradient(circle at 10% 80%, #f6e9d5 0, transparent 35%),
+                var(--bg);
+        }
+
+        .wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 32px 16px 56px;
+        }
+
+        .card {
+            display: none;
+            background: var(--card);
+            border-radius: 24px;
+            border: 1px solid #ead9be;
+            box-shadow: 0 18px 35px rgba(31, 51, 71, 0.09);
+            padding: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #f7ebd7;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-family: "Fraunces", serif;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            line-height: 1.15;
+        }
+
+        .summary {
+            margin: 0 0 20px;
+            color: #3e5568;
+            line-height: 1.7;
+        }
+
+        .score-box {
+            border: 1px solid #ead9be;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .score-box h2 {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+        }
+
+        .score-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 8px;
+        }
+
+        .score-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f8f4ec;
+        }
+
+        .status-box {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #e8edf4;
+            color: #314a5b;
+        }
+
+        .status-box.success {
+            background: #def7f0;
+            color: var(--success);
+        }
+
+        .status-box.error {
+            background: #fde7e9;
+            color: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <article class="card" id="result-card">
+            <span class="eyebrow">Your Result</span>
+            <h1 id="result-title">Result</h1>
+            <p class="summary" id="result-summary"></p>
+            <section class="score-box">
+                <h2>Style Breakdown</h2>
+                <ul id="result-scores" class="score-list"></ul>
+            </section>
+        </article>
+        <div id="result-status" class="status-box">Preparing your result...</div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/homeschool-quiz-result.js"></script>
+</body>
+</html>

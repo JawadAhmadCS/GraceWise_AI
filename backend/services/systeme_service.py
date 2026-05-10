@@ -3,48 +3,24 @@ import os
 from urllib import request, error
 
 
-def _parse_tag_map():
-    raw = os.environ.get("SYSTEME_TAG_MAP", "").strip()
-    if not raw:
-        return {}
-
-    try:
-        parsed = json.loads(raw)
-        if isinstance(parsed, dict):
-            return {str(k): str(v) for k, v in parsed.items()}
-    except json.JSONDecodeError:
-        pass
-
-    return {}
-
-
-def _build_payload(email, result_payload, metadata):
-    tag_map = _parse_tag_map()
+def _build_payload(email, first_name, result_payload, metadata):
     result_key = result_payload.get("result_key")
-
-    tags = ["quiz-homeschool-style"]
-    mapped_tag = tag_map.get(result_key)
-    if mapped_tag:
-        tags.append(mapped_tag)
-
-    default_tag = os.environ.get("SYSTEME_DEFAULT_TAG", "").strip()
-    if default_tag:
-        tags.append(default_tag)
+    tags = ["Quiz - Completed", str(result_key or "").strip().upper()]
+    tags = [tag for tag in tags if tag]
 
     payload = {
         "email": email,
-        "source": "gracewise_homeschool_style_quiz",
-        "result_key": result_key,
-        "result_title": result_payload.get("result_title"),
-        "result_summary": result_payload.get("result_summary"),
-        "score_breakdown": result_payload.get("score_breakdown"),
+        "firstname": first_name or "",
         "tags": list(dict.fromkeys(tags)),
-        "metadata": metadata or {},
+        "upsert": True,
+        "append_tags": True,
+        "source": "gracewise_homeschool_style_quiz",
+        "metadata": metadata or {}
     }
     return payload
 
 
-def push_quiz_lead_to_systeme(email, result_payload, metadata=None):
+def push_quiz_lead_to_systeme(email, first_name, result_payload, metadata=None):
     """
     Push quiz lead to Systeme (typically via Zapier Catch Hook URL).
     Returns (status, response_text)
@@ -54,7 +30,7 @@ def push_quiz_lead_to_systeme(email, result_payload, metadata=None):
     if not webhook_url:
         return "skipped", "SYSTEME_WEBHOOK_URL is not configured"
 
-    payload = _build_payload(email, result_payload, metadata)
+    payload = _build_payload(email, first_name, result_payload, metadata)
     body = json.dumps(payload).encode("utf-8")
 
     headers = {"Content-Type": "application/json"}

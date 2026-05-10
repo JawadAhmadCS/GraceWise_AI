@@ -7,6 +7,7 @@ class HomeschoolStyleSubmission(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    first_name = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(255), nullable=True, index=True)
 
     answers = db.Column(db.JSON, nullable=False)
@@ -29,9 +30,13 @@ class HomeschoolStyleSubmission(db.Model):
     def to_result_dict(self):
         return {
             "submission_token": self.submission_token,
+            "first_name": self.first_name,
+            "email": self.email,
             "result_key": self.result_key,
             "result_title": self.result_title,
             "result_summary": self.result_summary,
             "score_breakdown": self.score_breakdown,
+            "answers": self.answers,
+            "final_result": self.result_key,
             "completed_at": self.lead_captured_at.isoformat() if self.lead_captured_at else None,
         }

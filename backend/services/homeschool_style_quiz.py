@@ -253,7 +253,13 @@ def _normalize_style_code(value):
     raw = re.sub(r"[^a-z0-9_]+", "_", raw).strip("_")
     if not raw:
         raise ValueError("Style code is required")
-    return STYLE_CODE_ALIASES.get(raw, raw.upper())
+    code = STYLE_CODE_ALIASES.get(raw, raw.upper())
+    allowed = set(DEFAULT_STYLE_PROFILES.keys())
+    if code not in allowed:
+        raise ValueError(
+            f"Invalid style code '{value}'. Allowed codes: {', '.join(sorted(allowed))}"
+        )
+    return code
 
 
 def validate_quiz_config(raw_config):
@@ -454,7 +460,13 @@ def calculate_result(answer_map):
                 break
 
     sorted_styles = sorted(style_counts.items(), key=lambda item: item[1], reverse=True)
-    top_style = sorted_styles[0][0]
+    top_score = sorted_styles[0][1]
+    top_styles = [style for style, score in sorted_styles if score == top_score]
+    if len(top_styles) == 1:
+        top_style = top_styles[0]
+    else:
+        top_style = "HY"
+
     second_style = sorted_styles[1][0] if len(sorted_styles) > 1 else top_style
 
     top_profile = style_profiles[top_style]

@@ -522,6 +522,7 @@ const resultSummary = document.getElementById("resultSummary");
 const resultNextStep = document.getElementById("resultNextStep");
 
 const apiBaseUrl = getApiBaseUrl();
+const VALID_STYLE_CODES = new Set(["CL", "CM", "UN", "TR", "ON", "US", "HY"]);
 let quizQuestions = [];
 let currentQuestion = 0;
 const answers = {};
@@ -645,7 +646,7 @@ async function submitQuizAnswers() {
   return data;
 }
 
-async function captureLead(email) {
+async function captureLead(firstName, email) {
   const headers = { "Content-Type": "application/json" };
   const token = getAccessToken();
   if (token) {
@@ -657,6 +658,7 @@ async function captureLead(email) {
     headers,
     body: JSON.stringify({
       submission_token: submissionToken,
+      first_name: firstName,
       email,
       metadata: getUrlMetadata(),
     }),
@@ -665,15 +667,30 @@ async function captureLead(email) {
   if (!response.ok) {
     throw new Error(data.message || "Could not save quiz result.");
   }
+  return data;
 }
 
-async function loadSavedResult() {
+async function resolveFinalStyle(captureData) {
+  const direct = String((captureData && captureData.final_result) || "").trim().toUpperCase();
+  if (VALID_STYLE_CODES.has(direct)) {
+    return direct;
+  }
+
+  if (!submissionToken) {
+    throw new Error("Missing submission token for result lookup.");
+  }
+
   const response = await fetch(`${apiBaseUrl}/quiz/homeschool-style/result?token=${encodeURIComponent(submissionToken)}`);
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || "Could not load result.");
+    throw new Error(data.message || "Could not resolve final result.");
   }
-  return data.result || {};
+
+  const fromResult = String((data.result && data.result.result_key) || "").trim().toUpperCase();
+  if (!VALID_STYLE_CODES.has(fromResult)) {
+    throw new Error("Invalid final result code.");
+  }
+  return fromResult;
 }
 
 startBtn.addEventListener("click", async () => {
@@ -725,16 +742,9 @@ leadForm.addEventListener("submit", async (event) => {
       throw new Error("Could not create quiz submission.");
     }
 
-    await captureLead(email);
-    const result = await loadSavedResult();
-
-    resultStyleLabel.textContent = `Result for ${firstName}`;
-    resultHeadline.textContent = result.result_title || "Your Homeschool Style";
-    resultSummary.textContent = result.result_summary || "Your result has been saved.";
-    resultNextStep.textContent = "Your result is now saved and visible in Quiz History.";
-
-    formError.textContent = "";
-    showScreen(thanksScreen);
+    const captureData = await captureLead(firstName, email);
+    const finalStyle = await resolveFinalStyle(captureData);
+    window.location.href = `/results?style=${encodeURIComponent(finalStyle)}`;
   } catch (error) {
     formError.textContent = error.message || "Could not save quiz result.";
   } finally {

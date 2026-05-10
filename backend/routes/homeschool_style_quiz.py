@@ -4,8 +4,8 @@ import secrets
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
-from sqlalchemy import func
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from sqlalchemy import func, inspect, text
 
 from models import User, db, HomeschoolStyleSubmission
 from services.homeschool_style_quiz import (
@@ -23,10 +23,34 @@ from services.email_service import send_homeschool_style_result_email
 homeschool_style_quiz_bp = Blueprint("homeschool_style_quiz", __name__)
 
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_schema_checked = False
 
 
 def _frontend_base_url():
     return (os.environ.get("FRONTEND_BASE_URL") or "http://localhost:5500").rstrip("/")
+
+
+def _ensure_submission_schema():
+    global _schema_checked
+    if _schema_checked:
+        return
+
+    inspector = inspect(db.engine)
+    columns = {col["name"] for col in inspector.get_columns("homeschool_style_submission")}
+    if "first_name" in columns:
+        _schema_checked = True
+        return
+
+    dialect = db.engine.dialect.name
+    if dialect == "postgresql":
+        ddl = "ALTER TABLE homeschool_style_submission ADD COLUMN IF NOT EXISTS first_name VARCHAR(120)"
+    else:
+        ddl = "ALTER TABLE homeschool_style_submission ADD COLUMN first_name VARCHAR(120)"
+
+    with db.engine.begin() as conn:
+        conn.execute(text(ddl))
+
+    _schema_checked = True
 
 
 def _build_result_payload(submission):
@@ -35,6 +59,7 @@ def _build_result_payload(submission):
         "result_title": submission.result_title,
         "result_summary": submission.result_summary,
         "score_breakdown": submission.score_breakdown,
+        "final_result": submission.result_key,
         "strengths": calculate_result(submission.answers).get("strengths", []),
     }
 
@@ -104,6 +129,7 @@ def reset_homeschool_style_admin_config():
 
 @homeschool_style_quiz_bp.route("/homeschool-style/submit", methods=["POST"])
 def submit_homeschool_style_answers():
+    _ensure_submission_schema()
     data = request.get_json(silent=True) or {}
     answers = data.get("answers", {})
     metadata = data.get("metadata", {}) or {}
@@ -137,28 +163,19 @@ def submit_homeschool_style_answers():
 
 @homeschool_style_quiz_bp.route("/homeschool-style/capture-lead", methods=["POST"])
 def capture_homeschool_style_lead():
+    _ensure_submission_schema()
     data = request.get_json(silent=True) or {}
 
     submission_token = (data.get("submission_token") or "").strip()
+    first_name = (data.get("first_name") or data.get("firstname") or "").strip()
     email = (data.get("email") or "").strip().lower()
     metadata = data.get("metadata", {}) or {}
 
     if not submission_token:
         return jsonify({"message": "submission_token is required."}), 400
 
-    if not email:
-        try:
-            verify_jwt_in_request(optional=True)
-            user_id = get_jwt_identity()
-            if user_id:
-                if isinstance(user_id, str):
-                    user_id = int(user_id)
-                user = User.query.get(user_id)
-                if user and user.email:
-                    email = user.email.strip().lower()
-        except Exception:
-            email = ""
-
+    if not first_name:
+        return jsonify({"message": "first_name is required."}), 400
     if not email or not EMAIL_REGEX.match(email):
         return jsonify({"message": "Please provide a valid email address."}), 400
 
@@ -166,6 +183,7 @@ def capture_homeschool_style_lead():
     if not submission:
         return jsonify({"message": "Quiz submission not found."}), 404
 
+    submission.first_name = first_name
     submission.email = email
     submission.lead_captured_at = submission.lead_captured_at or datetime.utcnow()
     submission.utm_source = submission.utm_source or ((metadata.get("utm_source") or "")[:120] or None)
@@ -176,9 +194,15 @@ def capture_homeschool_style_lead():
 
     sync_status, sync_response = push_quiz_lead_to_systeme(
         email=email,
+        first_name=first_name,
         result_payload=result_payload,
         metadata={
             "submission_token": submission.submission_token,
+            "first_name": submission.first_name,
+            "email": submission.email,
+            "answers": submission.answers,
+            "scores": submission.score_breakdown,
+            "final_result": submission.result_key,
             "utm_source": submission.utm_source,
             "utm_medium": submission.utm_medium,
             "utm_campaign": submission.utm_campaign,
@@ -192,11 +216,12 @@ def capture_homeschool_style_lead():
 
     send_homeschool_style_result_email(email, result_payload)
 
-    redirect_url = f"{_frontend_base_url()}/homeschool-quiz-result.html?token={submission.submission_token}"
+    redirect_url = f"{_frontend_base_url()}/results?style={submission.result_key}"
 
     return jsonify({
         "message": "Result sent successfully.",
         "redirect_url": redirect_url,
+        "final_result": submission.result_key,
         "systeme_sync_status": sync_status,
     }), 200
 
