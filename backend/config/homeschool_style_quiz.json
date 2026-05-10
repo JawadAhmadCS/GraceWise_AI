@@ -3,45 +3,63 @@
   "title": "What Is Your Homeschool Style?",
   "description": "Answer 10 quick questions to discover your dominant homeschool style.",
   "styles": {
-    "classical": {
-      "title": "The Classical Guide",
-      "summary": "You thrive with structure, deep learning, and clear academic progression. You likely enjoy using trusted curricula and helping your child build strong foundations over time.",
+    "CL": {
+      "title": "Classical",
+      "summary": "You thrive with structure, deep learning, and clear academic progression.",
       "strengths": [
         "You value mastery and consistency.",
         "You are intentional about academic rigor.",
         "You create dependable rhythms for your family."
       ]
     },
-    "charlotte_mason": {
-      "title": "The Gentle Narrator",
-      "summary": "You lean toward rich books, short focused lessons, and heart-level learning. You want education to shape both character and curiosity.",
+    "CM": {
+      "title": "Charlotte Mason",
+      "summary": "You lean toward rich books, short focused lessons, and heart-level learning.",
       "strengths": [
         "You nurture wonder and attention.",
         "You prioritize meaningful conversations.",
         "You blend academics with beauty and nature."
       ]
     },
-    "unit_study": {
-      "title": "The Integrative Explorer",
-      "summary": "You love connecting subjects around shared themes and real-life projects. Your style is creative, cross-disciplinary, and engaging for multiple ages.",
+    "UN": {
+      "title": "Unit Study",
+      "summary": "You love connecting subjects around shared themes and real-life projects.",
       "strengths": [
         "You make learning feel connected and practical.",
         "You are strong at project-based teaching.",
         "You naturally adapt to family-wide learning."
       ]
     },
-    "unschooling": {
-      "title": "The Interest-Led Mentor",
-      "summary": "You trust natural curiosity and prioritize intrinsic motivation. You guide your child through real-world learning, conversation, and choice.",
+    "TR": {
+      "title": "Traditional",
+      "summary": "You prefer proven classroom-like methods and measurable progress.",
+      "strengths": [
+        "You value clarity and accountability.",
+        "You keep expectations consistent.",
+        "You prefer structured pacing."
+      ]
+    },
+    "ON": {
+      "title": "Online",
+      "summary": "You value digital tools and flexible platform-based learning.",
+      "strengths": [
+        "You are resourceful with ed-tech tools.",
+        "You scale learning with online systems.",
+        "You support independent digital progress."
+      ]
+    },
+    "US": {
+      "title": "Unschooling",
+      "summary": "You trust natural curiosity and prioritize intrinsic motivation.",
       "strengths": [
         "You build ownership and confidence.",
         "You reduce pressure and preserve joy.",
         "You are responsive to each child's unique pace."
       ]
     },
-    "eclectic": {
-      "title": "The Flexible Curator",
-      "summary": "You blend methods based on season, child, and subject. You are practical, adaptive, and focused on what truly works in your home.",
+    "HY": {
+      "title": "Hybrid",
+      "summary": "You blend methods based on season, child, and subject.",
       "strengths": [
         "You are highly adaptable.",
         "You personalize learning with wisdom.",
@@ -57,27 +75,44 @@
         {
           "key": "q1_a",
           "text": "A clear schedule with specific subjects each day",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q1_b",
           "text": "Short meaningful lessons with books and narration",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q1_c",
           "text": "A theme everyone can explore in different ways",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q1_d",
           "text": "Following the child's interests as they unfold",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q1_e",
           "text": "Mixing structure and flexibility based on the day",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -88,27 +123,44 @@
         {
           "key": "q2_a",
           "text": "Instructor with a clear lesson plan",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q2_b",
           "text": "Guide who sparks reflection and discussion",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q2_c",
           "text": "Facilitator of projects and hands-on discovery",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q2_d",
           "text": "Mentor who supports child-led exploration",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q2_e",
           "text": "Coach who adjusts approach as needed",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -119,27 +171,44 @@
         {
           "key": "q3_a",
           "text": "Comprehensive, proven programs with progression",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q3_b",
           "text": "Living books and rich ideas over worksheets",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q3_c",
           "text": "Resources that can connect across subjects",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q3_d",
           "text": "Minimal curriculum, mostly real-life learning",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q3_e",
           "text": "Different tools for different children/subjects",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -150,27 +219,44 @@
         {
           "key": "q4_a",
           "text": "Keep the expectation but adjust pacing",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q4_b",
           "text": "Pause and reconnect through conversation",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q4_c",
           "text": "Shift to a creative or practical activity",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q4_d",
           "text": "Let interest lead and revisit later",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q4_e",
           "text": "Try a different method entirely",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -181,27 +267,44 @@
         {
           "key": "q5_a",
           "text": "Core subjects completed with solid understanding",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q5_b",
           "text": "Deep ideas discussed and habits nurtured",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q5_c",
           "text": "Meaningful project progress with family collaboration",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q5_d",
           "text": "Child highly engaged in self-directed learning",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q5_e",
           "text": "We adapted and still moved forward",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -212,27 +315,44 @@
         {
           "key": "q6_a",
           "text": "Useful for tracking mastery and gaps",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q6_b",
           "text": "Prefer narration, observation, and discussion",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q6_c",
           "text": "Prefer project outputs over traditional tests",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q6_d",
           "text": "Mostly unnecessary for daily learning",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q6_e",
           "text": "Use whichever method fits the context",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -243,27 +363,44 @@
         {
           "key": "q7_a",
           "text": "Consistent routine with predictable blocks",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q7_b",
           "text": "Calm rhythm with books, nature, and reflection",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q7_c",
           "text": "Interactive spaces for experiments and projects",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q7_d",
           "text": "Real-world settings and everyday experiences",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q7_e",
           "text": "A mix depending on mood and goals",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -274,27 +411,44 @@
         {
           "key": "q8_a",
           "text": "Definitions, sequence, and core concepts",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q8_b",
           "text": "A compelling story or great book",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q8_c",
           "text": "A hands-on challenge or mini project",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q8_d",
           "text": "Questions your child already has",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q8_e",
           "text": "Whatever approach fits that topic best",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -305,27 +459,44 @@
         {
           "key": "q9_a",
           "text": "Academic depth and skill progression",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q9_b",
           "text": "Character formation and love of learning",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q9_c",
           "text": "Integrated learning that feels meaningful",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q9_d",
           "text": "Autonomy, confidence, and curiosity",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q9_e",
           "text": "Sustainable rhythms that actually work",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     },
@@ -336,27 +507,44 @@
         {
           "key": "q10_a",
           "text": "Preserve core sequence and trim extras",
-          "style": "classical"
+          "style": "CL",
+          "styles": [
+            "CL",
+            "TR"
+          ]
         },
         {
           "key": "q10_b",
           "text": "Focus on essential books and habits",
-          "style": "charlotte_mason"
+          "style": "CM",
+          "styles": [
+            "CM"
+          ]
         },
         {
           "key": "q10_c",
           "text": "Consolidate into one strong unit or project",
-          "style": "unit_study"
+          "style": "UN",
+          "styles": [
+            "UN"
+          ]
         },
         {
           "key": "q10_d",
           "text": "Lean into organic learning opportunities",
-          "style": "unschooling"
+          "style": "US",
+          "styles": [
+            "US"
+          ]
         },
         {
           "key": "q10_e",
           "text": "Pivot quickly and mix what serves us",
-          "style": "eclectic"
+          "style": "HY",
+          "styles": [
+            "HY",
+            "ON"
+          ]
         }
       ]
     }

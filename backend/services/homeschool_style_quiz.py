@@ -4,51 +4,99 @@ import re
 from pathlib import Path
 
 DEFAULT_STYLE_PROFILES = {
-    "classical": {
-        "title": "The Classical Guide",
-        "summary": "You thrive with structure, deep learning, and clear academic progression. You likely enjoy using trusted curricula and helping your child build strong foundations over time.",
+    "CL": {
+        "title": "Classical",
+        "summary": "You thrive with structure, deep learning, and clear academic progression.",
         "strengths": [
             "You value mastery and consistency.",
             "You are intentional about academic rigor.",
             "You create dependable rhythms for your family.",
         ],
     },
-    "charlotte_mason": {
-        "title": "The Gentle Narrator",
-        "summary": "You lean toward rich books, short focused lessons, and heart-level learning. You want education to shape both character and curiosity.",
+    "CM": {
+        "title": "Charlotte Mason",
+        "summary": "You lean toward rich books, short focused lessons, and heart-level learning.",
         "strengths": [
             "You nurture wonder and attention.",
             "You prioritize meaningful conversations.",
             "You blend academics with beauty and nature.",
         ],
     },
-    "unit_study": {
-        "title": "The Integrative Explorer",
-        "summary": "You love connecting subjects around shared themes and real-life projects. Your style is creative, cross-disciplinary, and engaging for multiple ages.",
+    "UN": {
+        "title": "Unit Study",
+        "summary": "You love connecting subjects around shared themes and real-life projects.",
         "strengths": [
             "You make learning feel connected and practical.",
             "You are strong at project-based teaching.",
             "You naturally adapt to family-wide learning.",
         ],
     },
-    "unschooling": {
-        "title": "The Interest-Led Mentor",
-        "summary": "You trust natural curiosity and prioritize intrinsic motivation. You guide your child through real-world learning, conversation, and choice.",
+    "TR": {
+        "title": "Traditional",
+        "summary": "You prefer proven classroom-like methods and measurable progress.",
+        "strengths": [
+            "You value clarity and accountability.",
+            "You keep expectations consistent.",
+            "You prefer structured pacing.",
+        ],
+    },
+    "ON": {
+        "title": "Online",
+        "summary": "You value digital tools and flexible platform-based learning.",
+        "strengths": [
+            "You are resourceful with ed-tech tools.",
+            "You scale learning with online systems.",
+            "You support independent digital progress.",
+        ],
+    },
+    "US": {
+        "title": "Unschooling",
+        "summary": "You trust natural curiosity and prioritize intrinsic motivation.",
         "strengths": [
             "You build ownership and confidence.",
             "You reduce pressure and preserve joy.",
             "You are responsive to each child's unique pace.",
         ],
     },
-    "eclectic": {
-        "title": "The Flexible Curator",
-        "summary": "You blend methods based on season, child, and subject. You are practical, adaptive, and focused on what truly works in your home.",
+    "HY": {
+        "title": "Hybrid",
+        "summary": "You blend methods based on season, child, and subject.",
         "strengths": [
             "You are highly adaptable.",
             "You personalize learning with wisdom.",
             "You balance structure and flexibility well.",
         ],
     },
+}
+
+STYLE_CODE_ALIASES = {
+    "cl": "CL",
+    "classical": "CL",
+    "cm": "CM",
+    "charlotte_mason": "CM",
+    "charlottemason": "CM",
+    "un": "UN",
+    "unit_study": "UN",
+    "unitstudy": "UN",
+    "tr": "TR",
+    "traditional": "TR",
+    "on": "ON",
+    "online": "ON",
+    "us": "US",
+    "unschooling": "US",
+    "hy": "HY",
+    "hybrid": "HY",
+    "eclectic": "HY",
+}
+
+LEGACY_OPTION_STYLE_EXPANSION = {
+    "CL": ["CL", "TR"],
+    "CM": ["CM"],
+    "UN": ["UN"],
+    "TR": ["TR"],
+    "ON": ["ON"],
+    "US": ["US"],
+    "HY": ["HY", "ON"],
 }
 
 DEFAULT_QUESTIONS = [
@@ -200,6 +248,14 @@ def _clean_text(value, field_name):
     return text
 
 
+def _normalize_style_code(value):
+    raw = str(value or "").strip().lower()
+    raw = re.sub(r"[^a-z0-9_]+", "_", raw).strip("_")
+    if not raw:
+        raise ValueError("Style code is required")
+    return STYLE_CODE_ALIASES.get(raw, raw.upper())
+
+
 def validate_quiz_config(raw_config):
     if not isinstance(raw_config, dict):
         raise ValueError("Quiz config must be an object")
@@ -213,7 +269,7 @@ def validate_quiz_config(raw_config):
 
     normalized_styles = {}
     for raw_style_key, raw_profile in raw_styles.items():
-        style_key = _normalize_id(raw_style_key, "style")
+        style_key = _normalize_style_code(raw_style_key)
         if style_key in normalized_styles:
             raise ValueError(f"Duplicate style key '{style_key}'")
         if not isinstance(raw_profile, dict):
@@ -240,6 +296,10 @@ def validate_quiz_config(raw_config):
             "summary": style_summary,
             "strengths": cleaned_strengths,
         }
+
+    for code, profile in DEFAULT_STYLE_PROFILES.items():
+        if code not in normalized_styles:
+            normalized_styles[code] = _clone(profile)
 
     raw_questions = raw_config.get("questions")
     if not isinstance(raw_questions, list) or not raw_questions:
@@ -270,11 +330,29 @@ def validate_quiz_config(raw_config):
                 raise ValueError(f"Question '{question_id}' option #{o_index} must be an object")
 
             option_text = _clean_text(raw_option.get("text"), f"questions[{q_index}].options[{o_index}].text")
-            option_style = _normalize_id(raw_option.get("style"), "style")
-            if option_style not in normalized_styles:
-                raise ValueError(
-                    f"Question '{question_id}' option #{o_index} uses unknown style '{option_style}'"
-                )
+
+            raw_styles_value = raw_option.get("styles")
+            if raw_styles_value is None:
+                legacy_code = _normalize_style_code(raw_option.get("style"))
+                raw_styles_value = LEGACY_OPTION_STYLE_EXPANSION.get(legacy_code, [legacy_code])
+
+            if isinstance(raw_styles_value, str):
+                raw_styles_value = [raw_styles_value]
+            if not isinstance(raw_styles_value, list) or not raw_styles_value:
+                raise ValueError(f"Question '{question_id}' option #{o_index} must map to at least one style")
+
+            option_styles = []
+            seen_styles = set()
+            for raw_style in raw_styles_value:
+                option_style = _normalize_style_code(raw_style)
+                if option_style not in normalized_styles:
+                    raise ValueError(
+                        f"Question '{question_id}' option #{o_index} uses unknown style '{option_style}'"
+                    )
+                if option_style in seen_styles:
+                    continue
+                seen_styles.add(option_style)
+                option_styles.append(option_style)
 
             option_key = _normalize_id(raw_option.get("key"), f"{question_id}_opt{o_index}")
             if option_key in option_keys:
@@ -284,7 +362,8 @@ def validate_quiz_config(raw_config):
             normalized_options.append({
                 "key": option_key,
                 "text": option_text,
-                "style": option_style,
+                "style": option_styles[0],
+                "styles": option_styles,
             })
 
         normalized_questions.append({
@@ -368,7 +447,10 @@ def calculate_result(answer_map):
         selected = (answer_map or {}).get(question["id"])
         for option in question["options"]:
             if option["key"] == selected:
-                style_counts[option["style"]] += 1
+                mapped_styles = option.get("styles") or [option.get("style")]
+                for style_code in mapped_styles:
+                    if style_code in style_counts:
+                        style_counts[style_code] += 1
                 break
 
     sorted_styles = sorted(style_counts.items(), key=lambda item: item[1], reverse=True)

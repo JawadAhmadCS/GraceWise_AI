@@ -28,6 +28,19 @@
     }
 
     function formatLabel(key) {
+        const codeLabels = {
+            CL: "Classical",
+            CM: "Charlotte Mason",
+            UN: "Unit Study",
+            TR: "Traditional",
+            ON: "Online",
+            US: "Unschooling",
+            HY: "Hybrid",
+        };
+        const normalized = String(key || "").trim().toUpperCase();
+        if (codeLabels[normalized]) {
+            return `${normalized} - ${codeLabels[normalized]}`;
+        }
         return String(key || "")
             .replace(/_/g, " ")
             .replace(/\b\w/g, (c) => c.toUpperCase());
