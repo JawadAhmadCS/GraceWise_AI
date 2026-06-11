@@ -6,4 +6,5 @@ backend/.env.*
 check_db.py
 .venv
 __pycache__
+backend/gracewise_dev.db
 jawad.md

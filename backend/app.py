@@ -57,16 +57,30 @@ def handle_options_preflight():
 # app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost/gracewise"
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///gracewise.db')
 
-# Prefer explicit URI env vars. Fallback to DB_* parts to avoid hardcoded credentials.
+# Prefer explicit URI env vars. DB_* values opt into MySQL.
+# Without database env vars, development uses a local SQLite file so the app
+# can start without guessing machine-specific MySQL credentials.
 database_uri = os.environ.get("SQLALCHEMY_DATABASE_URI") or os.environ.get("DATABASE_URL")
 if not database_uri:
-    database_uri = URL.create(
-        drivername="mysql+pymysql",
-        username=os.environ.get("DB_USER", "graceuser"),
-        password=os.environ.get("DB_PASSWORD", "StrongPass123!"),
-        host=os.environ.get("DB_HOST", "localhost"),
-        database=os.environ.get("DB_NAME", "gracewise"),
-    ).render_as_string(hide_password=False)
+    db_env_keys = ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_NAME")
+    has_db_env = any(os.environ.get(key) is not None for key in db_env_keys)
+
+    if has_db_env:
+        database_uri = URL.create(
+            drivername="mysql+pymysql",
+            username=os.environ.get("DB_USER", "root"),
+            password=os.environ.get("DB_PASSWORD", ""),
+            host=os.environ.get("DB_HOST", "127.0.0.1"),
+            database=os.environ.get("DB_NAME", "gracewise"),
+        ).render_as_string(hide_password=False)
+    elif IS_PRODUCTION:
+        raise RuntimeError(
+            "Database configuration is required when FLASK_ENV=production. "
+            "Set SQLALCHEMY_DATABASE_URI, DATABASE_URL, or DB_* environment variables."
+        )
+    else:
+        sqlite_path = os.path.join(BASE_DIR, "gracewise_dev.db").replace("\\", "/")
+        database_uri = f"sqlite:///{sqlite_path}"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
